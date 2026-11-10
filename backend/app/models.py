@@ -187,6 +187,8 @@ class Project(Base):
     status: Mapped[ProjectStatus] = mapped_column(
         _enum(ProjectStatus, "project_status"), default=ProjectStatus.DRAFT
     )
+    # Résultat du dernier cadrage (module B), figé au moment du calcul : méthode, totaux, « et si ? ».
+    scope_report: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     base_city: Mapped[City | None] = relationship()

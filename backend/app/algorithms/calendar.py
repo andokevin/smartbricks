@@ -14,6 +14,11 @@ from datetime import date, timedelta
 ONE_DAY = timedelta(days=1)
 
 
+def next_monday(today: date) -> date:
+    """Le lundi qui suit `today` (ou `today` lui-même si c'est un lundi) : date de début d'un projet."""
+    return today + timedelta(days=(7 - today.weekday()) % 7)
+
+
 def is_working_day(d: date) -> bool:
     return d.weekday() < 5  # 0 = lundi … 4 = vendredi
 

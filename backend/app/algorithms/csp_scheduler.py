@@ -210,15 +210,30 @@ def solve_schedule(
         return done("INFEASIBLE")
 
     # ---------------------------------------------------------------- charges (conditions nécessaires)
+    # Deux conditions nécessaires sur les tâches qu'une SEULE personne de l'équipe sait faire :
+    #   - en heures : leurs heures ≤ ses heures disponibles ;
+    #   - en jours  : Σ ceil(heures / heures par jour) ≤ ses jours disponibles, car elle les fait
+    #     l'une après l'autre et chaque tâche occupe des jours entiers (plus fin que le test en heures).
     capacity = {f.id: f.hours_per_day * len(avail[f.id]) for f in team}
     reported: set[Id] = set()
     for f in team:
-        forced = sum(t.hours for t in tasks if [e.id for e in eligible[t.id]] == [f.id])
+        mine = [t for t in tasks if [e.id for e in eligible[t.id]] == [f.id]]
+        forced = sum(t.hours for t in mine)
+        forced_days = sum(f.duration(t) for t in mine)
+        free_days = len(avail[f.id])
         if forced > capacity[f.id]:
             reported.add(f.id)
             result.diagnostics.append(
                 f"Charge de {f.name} : {forced} h pour {capacity[f.id]} h disponibles d'ici la date limite "
-                "(il est le seul à pouvoir faire ces tâches) : ajoutez un renfort ou repoussez la date."
+                "(seule personne de l'équipe à pouvoir faire ces tâches) : ajoutez un renfort ou repoussez la date."
+            )
+        elif forced_days > free_days:
+            reported.add(f.id)
+            result.diagnostics.append(
+                f"Charge de {f.name} : les {len(mine)} tâches que cette personne est seule à pouvoir faire "
+                f"({forced} h à {f.hours_per_day} h par jour) demandent {_jours(forced_days)}, pour "
+                f"{_jours(free_days)} disponibles d'ici la date limite : repoussez la date de "
+                f"{_jours(forced_days - free_days)} ou ajoutez un renfort."
             )
     for skill in sorted({t.skill for t in tasks}):
         group = [t for t in tasks if t.skill == skill]

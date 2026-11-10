@@ -3,22 +3,32 @@
 Règle de la spécification : coût = heures × taux horaire moyen des freelances qui ont la compétence.
 Une fonctionnalité regroupe des tâches de compétences différentes : son coût est donc la somme,
 sur ses tâches, de `heures de la tâche × taux moyen de la compétence de la tâche`.
-Ce coût est recalculé avec les taux de l'équipe réelle une fois celle-ci choisie (phase 5).
+
+Avant le choix de l'équipe : moyenne sur TOUS les freelances qui ont la compétence.
+Après le choix (POST /team) : moyenne sur les membres de l'équipe qui ont la compétence ;
+si aucun membre ne l'a, on garde la moyenne générale de cette compétence.
 """
+
+from collections.abc import Collection
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Feature, FreelancerProfile, FreelancerSkill, Task
+from app.models import Feature, FreelancerProfile, FreelancerSkill, ProjectTeam, Task
 
 
-async def average_rate_by_skill(session: AsyncSession) -> dict[int, float]:
-    """Taux horaire moyen (Ar) des freelances qui possèdent chaque compétence : {skill_id: taux}."""
-    rows = await session.execute(
+async def average_rate_by_skill(
+    session: AsyncSession, freelancer_ids: Collection[int] | None = None
+) -> dict[int, float]:
+    """Taux horaire moyen (Ar) par compétence : {skill_id: taux}, éventuellement limité à une équipe."""
+    query = (
         select(FreelancerSkill.skill_id, func.avg(FreelancerProfile.hourly_rate_mga))
         .join(FreelancerProfile, FreelancerProfile.id == FreelancerSkill.freelancer_id)
         .group_by(FreelancerSkill.skill_id)
     )
+    if freelancer_ids is not None:
+        query = query.where(FreelancerProfile.id.in_(list(freelancer_ids)))
+    rows = await session.execute(query)
     return {skill_id: float(avg) for skill_id, avg in rows.all()}
 
 
@@ -38,8 +48,12 @@ def feature_cost(feature: Feature, tasks: list[Task], rates: dict[int, float], f
 
 
 async def recompute_feature_costs(session: AsyncSession, project_id: int) -> None:
-    """Recalcule `estimated_cost_mga` de toutes les fonctionnalités d'un projet."""
+    """Recalcule `estimated_cost_mga` de toutes les fonctionnalités d'un projet
+    (avec les taux de l'équipe si elle est déjà choisie)."""
     rates = await average_rate_by_skill(session)
+    team = (await session.scalars(select(ProjectTeam.freelancer_id).where(ProjectTeam.project_id == project_id))).all()
+    if team:
+        rates.update(await average_rate_by_skill(session, team))  # les taux de l'équipe priment
     fallback = await global_average_rate(session)
     features = (await session.scalars(select(Feature).where(Feature.project_id == project_id))).all()
     tasks = (await session.scalars(select(Task).where(Task.project_id == project_id))).all()

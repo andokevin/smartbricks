@@ -11,6 +11,10 @@ pour que la démo fonctionne quel que soit le jour où on la lance.
 from datetime import date, timedelta
 from typing import Any
 
+from app.algorithms.calendar import next_monday
+
+__all__ = ["next_monday", "demo_draft"]
+
 # --------------------------------------------------------------------------- villes
 # (nom, latitude, longitude) — coordonnées des centres-villes.
 CITIES: list[tuple[str, float, float]] = [
@@ -166,11 +170,6 @@ _TASKS: list[tuple[str, str, str, str, int, int, list[str], str | None]] = [
     ("T29", "F13", "Audit sécurité et données personnelles", "Sécurité", 3, 10, ["T9"], None),
     ("T30", "F14", "Intégration de l'API Orange Money", "Node.js", 4, 14, ["T5"], None),
 ]
-
-
-def next_monday(today: date) -> date:
-    """Le lundi qui suit `today` (ou `today` lui-même si c'est un lundi)."""
-    return today + timedelta(days=(7 - today.weekday()) % 7)
 
 
 def demo_draft(start: date) -> dict[str, Any]:

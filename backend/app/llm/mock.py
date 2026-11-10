@@ -18,7 +18,7 @@ from datetime import date, timedelta
 from typing import Any
 
 from app import demo_data
-from app.algorithms.formatting import format_ar
+from app.algorithms.formatting import format_ar, format_date_fr
 from app.llm.base import LLMProvider, Message, Purpose
 from app.llm.prompts import READY_MARKER
 
@@ -148,7 +148,7 @@ def template_explanation(facts: dict[str, Any]) -> str:
     if p:
         parts.append(
             f"Votre projet « {p.get('titre', 'sans titre')} » dispose d'un budget de "
-            f"{format_ar(p.get('budget_mga', 0))} et doit être prêt pour le {p.get('date_limite', '?')}."
+            f"{format_ar(p.get('budget_mga', 0))} et doit être prêt pour le {format_date_fr(p.get('date_limite'))}."
         )
     s = facts.get("sprint", {})
     if s:
@@ -170,7 +170,7 @@ def template_explanation(facts: dict[str, Any]) -> str:
         if pl.get("statut") == "OK":
             parts.append(
                 f"Le planning tient toutes les contraintes (dépendances, compétences, congés, date limite) : "
-                f"le travail se termine le {pl.get('date_fin')}, en {pl.get('duree_jours')} jours ouvrés."
+                f"le travail se termine le {format_date_fr(pl.get('date_fin'))}, en {pl.get('duree_jours')} jours ouvrés."
             )
         else:
             parts.append("Le planning n'est pas réalisable en l'état : " + " ".join(pl.get("diagnostics", [])))

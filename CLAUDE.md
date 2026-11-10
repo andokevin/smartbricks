@@ -292,12 +292,15 @@ POST /projects/{id}/scope                     module B → sprint 1 + « et si ?
 GET  /projects/{id}/matching?w_cost=&w_speed=&w_quality=&w_availability=&w_coverage=&pareto=cost,speed,quality
 POST /projects/{id}/team                      { freelancer_ids } ou { suggested: true }
 POST /projects/{id}/solve-constraints         module D → planning + rapport de vérification ou diagnostic
+                                              { scenario: "impossible" } ou { deadline } : test non enregistré
 POST /projects/{id}/tour                      { freelancer_id?, closed: true, cost_per_km? } → module E
 POST /projects/{id}/explain                   module A → explication en français
 POST /tasks/{id}/propagate-delay              { delay_hours } → module D Min-Conflict (niveau B)
 
 GET  /freelancers?skill=&city=
-GET  /cities
+GET  /cities, GET /skills
+GET  /assistant/conversations/{id}            historique et brouillon d'une conversation
+GET  /admin/llm-usage                         consommation du LLM (administrateur)
 GET  /benchmark                               exact vs approché pour les modules B, D, E
 POST /admin/reset-demo                        uniquement en développement
 ```

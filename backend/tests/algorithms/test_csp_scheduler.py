@@ -113,6 +113,19 @@ def test_surcharge_d_un_freelance() -> None:
     assert "Charge de Rivo : 140 h pour 96 h disponibles" in " ".join(r.diagnostics)
 
 
+def test_surcharge_en_jours_malgre_des_heures_suffisantes() -> None:
+    """6 tâches de 13 h à 6 h/j : 78 h ≤ 90 h disponibles, MAIS ceil(13/6) = 3 jours chacune,
+    soit 18 jours pour 15 disponibles : impossible, et le diagnostic doit le dire en jours."""
+    tasks = [task(f"T{i}", 13) for i in range(6)]
+    team = [fl("Hasina", {"React": 4}, hpd=6), fl("Fara", {"UI/UX": 5})]
+    deadline = LUNDI + timedelta(days=18)  # vendredi de la 3e semaine : 15 jours ouvrés
+    r = solve_schedule(tasks, team, LUNDI, deadline)
+    assert r.status == "INFEASIBLE" and r.nodes == 0  # détecté avant toute recherche
+    msg = " ".join(r.diagnostics)
+    assert "Charge de Hasina" in msg and "18 jours ouvrés" in msg and "15 jours ouvrés" in msg
+    assert "78 h" in msg
+
+
 # --------------------------------------------------------------------------- vérification indépendante
 
 
