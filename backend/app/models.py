@@ -333,6 +333,26 @@ class AssistantConversation(Base):
     )
 
 
+class LlmUsage(Base):
+    """Un appel à un fournisseur LLM payant : tokens consommés et coût calculé.
+
+    Cette table n'est PAS vidée par reset-demo : le budget doit survivre aux réinitialisations.
+    """
+
+    __tablename__ = "llm_usage"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+    provider: Mapped[str] = mapped_column(String(20))
+    model: Mapped[str] = mapped_column(String(80))
+    purpose: Mapped[str] = mapped_column(String(20))  # chat | extract | explain
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_creation_input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_read_input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+
+
 class AssistantMessage(Base):
     __tablename__ = "assistant_messages"
 

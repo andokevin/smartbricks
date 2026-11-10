@@ -14,6 +14,10 @@ argon2-cffi>=23.1
 pyjwt>=2.9
 email-validator>=2.2
 
+# Copilote LLM (importés seulement si LLM_PROVIDER=claude ou gemini)
+anthropic>=2.8
+google-genai>=1.0
+
 # Tests
 pytest>=8.3
 pytest-asyncio>=0.24

@@ -147,8 +147,10 @@ Le coût d'une fonctionnalité est estimé par `estimated_hours × taux horaire 
 ### Copilote
 
 - `llm/base.py` définit `LLMProvider` avec `chat(messages, system) -> str` et `extract(messages, json_schema) -> dict`.
-- **Gemini** : `response_mime_type="application/json"` et `response_schema`. **Claude** : un outil dont le schéma d'entrée est le schéma JSON attendu.
+- **Gemini** : `response_mime_type="application/json"` et `response_json_schema`. **Claude** : sorties structurées (`output_config.format` avec le schéma JSON) — et non un outil forcé, car `tool_choice` forcé renvoie une erreur 400 sur plusieurs modèles Claude récents. Modèle `CLAUDE_MODEL` (défaut `claude-haiku-5-5`), `CLAUDE_MAX_TOKENS`, `CLAUDE_EFFORT=low`.
 - **Mock** : réponses déterministes pour le projet de démonstration (voir le seed), pour que la démo marche sans clé ni réseau.
+- **Suivi des coûts** : chaque appel payant est enregistré dans `llm_usage` (tokens d'entrée et de sortie, coût calculé avec `CLAUDE_PRICE_INPUT_PER_MTOK` / `CLAUDE_PRICE_OUTPUT_PER_MTOK`). Au-delà de `LLM_BUDGET_USD` (4 $), ou sans clé ou sans prix, bascule automatique en mock, signalée dans les logs. `GET /admin/llm-usage` (administrateur) affiche la consommation. `reset-demo` ne vide pas `llm_usage`.
+- **Explication vérifiée** : chaque nombre du texte du LLM doit figurer dans les données fournies ; sinon le texte est remplacé par une explication générée à partir des données.
 
 Comportement du copilote, dans le rôle d'un chef de produit bienveillant :
 1. Il pose des questions de précision tant qu'il manque le budget, la date limite, la ville de base ou des fonctionnalités clés. Une question à la fois, en français simple. Il demande aussi le nombre d'heures de travail maximal du sprint 1 (`budget_hours`, facultatif) ; s'il manque, défaut = jours ouvrés jusqu'à la date limite × 6 h × 2 personnes, modifiable par le client. Démo Boutique Soa : 200 h.

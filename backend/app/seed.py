@@ -36,6 +36,7 @@ from app.security import hash_password
 from app.services.project_builder import create_project_from_draft
 
 SEED = 42
+KEEP_TABLES = {"llm_usage"}
 
 
 def _slug(name: str) -> str:
@@ -52,8 +53,11 @@ def _hourly_rate(rng: random.Random, best_level: int) -> int:
 
 
 async def _truncate_all(session: AsyncSession) -> None:
-    """Vide toutes les tables et remet les compteurs d'identifiants à 1."""
-    tables = ", ".join(f'"{t.name}"' for t in Base.metadata.sorted_tables)
+    """Vide toutes les tables et remet les compteurs d'identifiants à 1.
+
+    Sauf `llm_usage` : la consommation réelle du LLM (et donc le budget) doit être conservée.
+    """
+    tables = ", ".join(f'"{t.name}"' for t in Base.metadata.sorted_tables if t.name not in KEEP_TABLES)
     await session.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
 
 

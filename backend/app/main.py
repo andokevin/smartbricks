@@ -4,6 +4,8 @@ Lancement : `uvicorn app.main:app --reload` depuis le dossier backend/.
 Documentation interactive : http://localhost:8000/docs
 """
 
+import logging
+
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -12,6 +14,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.db import get_session
 from app.routers import admin, auth
+
+# Journaux de l'application (consommation du LLM, bascule en mode mock…) visibles dans la console.
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+logging.getLogger("smartbricks").setLevel(logging.INFO)
 
 app = FastAPI(
     title="SmartBricks API",
