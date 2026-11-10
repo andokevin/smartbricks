@@ -1,0 +1,3 @@
+# esbuild (utilisé par Vite) a besoin de son script d'installation.
+allowBuilds:
+  esbuild: true
