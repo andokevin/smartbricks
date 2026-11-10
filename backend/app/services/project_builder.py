@@ -7,11 +7,13 @@ Ici, le brouillon est supposé DÉJÀ VALIDÉ (compétences et villes reconnues,
 la validation approchée et la détection de cycles arrivent avec le copilote (phase 4).
 """
 
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.algorithms.calendar import count_working_days
 
 from app.models import City, Feature, Project, ProjectSite, ProjectStatus, ReqType, Skill, Task, TaskDependency
 from app.services.costing import recompute_feature_costs
@@ -20,21 +22,6 @@ from app.services.costing import recompute_feature_costs
 # une petite équipe de 2 personnes à 6 h par jour ouvré jusqu'à la date limite.
 DEFAULT_TEAM_SIZE = 2
 DEFAULT_HOURS_PER_DAY = 6
-
-
-def count_working_days(start: date, end: date) -> int:
-    """Nombre de jours ouvrés (lundi–vendredi) entre `start` et `end` inclus.
-
-    Version simple pour le défaut de budget_hours ; le calendrier complet
-    (indisponibilités, dates de fin) est dans algorithms/calendar.py (phase 3).
-    """
-    days = 0
-    current = start
-    while current <= end:
-        if current.weekday() < 5:
-            days += 1
-        current += timedelta(days=1)
-    return days
 
 
 def default_budget_hours(start: date, deadline: date) -> int:
