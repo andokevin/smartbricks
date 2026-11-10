@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.db import get_session
+from app.routers import admin, auth
 
 app = FastAPI(
     title="SmartBricks API",
@@ -44,5 +45,8 @@ async def health(session: AsyncSession = Depends(get_session)) -> dict[str, str]
         "llm_provider": get_settings().llm_provider,
     }
 
+
+api.include_router(auth.router)
+api.include_router(admin.router)
 
 app.include_router(api)

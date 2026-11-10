@@ -18,7 +18,8 @@ class Settings(BaseSettings):
     )
 
     database_url: str = "postgresql+asyncpg://smartbricks:smartbricks@localhost:5435/smartbricks"
-    jwt_secret: str = "change-me"
+    # Au moins 32 octets pour HS256 (RFC 7518) ; à remplacer en production.
+    jwt_secret: str = "dev-secret-smartbricks-a-changer-en-production"
     jwt_expire_minutes: int = 60 * 24
 
     # Fournisseur LLM : « mock » par défaut, pour que la démo marche sans clé ni réseau.
