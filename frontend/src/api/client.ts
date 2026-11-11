@@ -143,6 +143,8 @@ export async function orNull<T>(promise: Promise<T>): Promise<T | null> {
 export const api = {
   health: () => request<Health>("GET", "/health"),
   login: (email: string, password: string) => request<TokenOut>("POST", "/auth/login", { email, password }),
+  register: (body: { name: string; email: string; password: string; organization_name: string | null }) =>
+    request<TokenOut>("POST", "/auth/register", { ...body, role: "CLIENT" }),
   me: () => request<User>("GET", "/auth/me"),
   resetDemo: () => request<ResetDemoOut>("POST", "/admin/reset-demo"),
   projects: () => request<ProjectSummary[]>("GET", "/projects"),

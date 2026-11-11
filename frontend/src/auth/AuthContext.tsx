@@ -4,10 +4,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api, getToken, setToken } from "../api/client";
 import type { User } from "../api/types";
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  organization_name: string | null;
+}
+
 interface AuthValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  /** Inscription d'un compte CLIENT (un compte freelance demande un profil créé par la plateforme). */
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
@@ -33,12 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(out.user);
   }, []);
 
+  const register = useCallback(async (data: RegisterData) => {
+    const out = await api.register(data);
+    setToken(out.access_token);
+    setUser(out.user);
+  }, []);
+
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
+  const value = useMemo(() => ({ user, loading, login, register, logout }), [user, loading, login, register, logout]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

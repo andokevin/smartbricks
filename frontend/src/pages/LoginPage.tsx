@@ -12,10 +12,13 @@ const DEMO_ACCOUNTS = [
 ];
 
 export function LoginPage() {
-  const { user, login } = useAuth();
+  const { user, login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? "/";
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
+  const [organization, setOrganization] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +31,11 @@ export function LoginPage() {
     setBusy(true);
     setError(null);
     try {
-      await login(account?.email ?? email, account?.password ?? password);
+      if (mode === "register" && !account) {
+        await register({ name: name.trim(), email, password, organization_name: organization.trim() || null });
+      } else {
+        await login(account?.email ?? email, account?.password ?? password);
+      }
       navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -72,11 +79,25 @@ export function LoginPage() {
         {/* Formulaire */}
         <div className="flex flex-col gap-space-lg p-space-xl">
           <div>
-            <h2 className="text-headline-sm text-on-surface">Connexion</h2>
-            <p className="text-body-md text-on-surface-variant">Accédez à vos projets.</p>
+            <h2 className="text-headline-sm text-on-surface">{mode === "login" ? "Connexion" : "Créer un compte client"}</h2>
+            <p className="text-body-md text-on-surface-variant">
+              {mode === "login" ? "Accédez à vos projets." : "Décrivez ensuite votre projet au copilote."}
+            </p>
           </div>
           {error && <ErrorBanner message={error} />}
           <form onSubmit={(e) => void submit(e)} className="flex flex-col gap-space-md">
+            {mode === "register" && (
+              <>
+                <label className="flex flex-col gap-1 text-label-md text-on-surface">
+                  Nom
+                  <input className={input} type="text" autoComplete="name" required minLength={2} maxLength={120} value={name} onChange={(e) => setName(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1 text-label-md text-on-surface">
+                  Organisation (facultatif)
+                  <input className={input} type="text" autoComplete="organization" maxLength={200} value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="Votre entreprise ou association" />
+                </label>
+              </>
+            )}
             <label className="flex flex-col gap-1 text-label-md text-on-surface">
               Email
               <input className={input} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -86,15 +107,27 @@ export function LoginPage() {
               <input
                 className={input}
                 type="password"
-                autoComplete="current-password"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 required
+                minLength={mode === "register" ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {mode === "register" && <span className="text-body-sm font-normal text-on-surface-variant">8 caractères au minimum.</span>}
             </label>
             <Button type="submit" disabled={busy} iconRight="arrow_forward">
-              Se connecter
+              {mode === "login" ? "Se connecter" : "Créer mon compte"}
             </Button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError(null);
+              }}
+              className="text-label-md text-primary hover:underline"
+            >
+              {mode === "login" ? "Pas encore de compte ? Créer un compte client" : "Déjà un compte ? Se connecter"}
+            </button>
           </form>
           <div className="flex flex-col gap-space-sm">
             <span className="text-label-sm uppercase tracking-wider text-outline">Comptes de démonstration</span>

@@ -33,7 +33,7 @@ cd ~/projets/smartbricks/frontend && pnpm dev
 
 | Min. | Écran | Action | Ce qu'on voit et ce qu'on dit |
 |---|---|---|---|
-| 0:00 | Connexion | Bouton **« Cliente — Soa »** | Tableau de bord du client. |
+| 0:00 | Connexion | Bouton **« Cliente — Soa »**, ou **« Pas encore de compte ? Créer un compte client »** (nom, organisation, email, mot de passe d'au moins 8 caractères) | Tableau de bord du client. Un compte neuf n'a aucun projet : passer directement par **Nouveau projet**. |
 | 0:30 | **Copilote** (n°33) | Menu **Nouveau projet**, coller le texte, envoyer | Claude reformule et pose **une seule question** (souvent : ville de base, livraison, heures). Le badge indique **Claude**. |
 | 1:00 | Copilote | Répondre simplement, par exemple : « La ville de base est Antananarivo, avec la livraison à domicile, 200 heures pour le sprint 1. » | Après 1 ou 2 réponses, le **brouillon** apparaît à droite : fonctionnalités, tâches, sites. Dire : « l'IA a structuré le besoin ; un programme a vérifié les compétences, les villes et les cycles de dépendances ». |
 | 2:00 | Copilote | Modifier une valeur ou des heures dans le brouillon, puis **Valider le brouillon** | Le projet est créé et l'écran Périmètre s'ouvre. |
