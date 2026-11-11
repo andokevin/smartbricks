@@ -8,6 +8,7 @@ import { STEPS } from "./lib/steps";
 import { CopilotPage } from "./pages/CopilotPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProjectCopilotPage } from "./pages/ProjectCopilotPage";
+import { PlanningPage } from "./pages/PlanningPage";
 import { ScopePage } from "./pages/ScopePage";
 import { TeamPage } from "./pages/TeamPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -36,7 +37,8 @@ export default function App() {
       <Route path="/projets/:projectId/copilote" element={<RequireAuth><ProjectCopilotPage /></RequireAuth>} />
       <Route path="/projets/:projectId/perimetre" element={<RequireAuth><ScopePage /></RequireAuth>} />
       <Route path="/projets/:projectId/equipe" element={<RequireAuth><TeamPage /></RequireAuth>} />
-      {STEPS.filter((s) => !["copilote", "perimetre", "equipe"].includes(s.key)).map((s) => (
+      <Route path="/projets/:projectId/planning" element={<RequireAuth><PlanningPage /></RequireAuth>} />
+      {STEPS.filter((s) => !["copilote", "perimetre", "equipe", "planning"].includes(s.key)).map((s) => (
         <Route
           key={s.key}
           path={`/projets/:projectId/${s.key}`}

@@ -114,6 +114,8 @@ async def test_parcours_complet_boutique_soa(client: AsyncClient, demo: dict[str
     assert any(("jours ouvrés" in d) for d in bad["diagnostics"])
     after = (await client.get(f"{API}/projects/{pid}", headers=h)).json()
     assert after["status"] == "PLANNED" and after["tasks"] == detail["tasks"]
+    stored = (await client.get(f"{API}/projects/{pid}/schedule", headers=h)).json()
+    assert stored["run_id"] == plan["run_id"]  # le scénario impossible n'écrase pas le planning réel
 
     # E — tournée exacte entre les 4 agences
     tour = (await client.post(f"{API}/projects/{pid}/tour", headers=h, json={"closed": True})).json()

@@ -90,6 +90,13 @@ async def team(project_id: int, data: TeamIn, session: AsyncSession = Depends(ge
     return await matching_service.set_team(session, await get_project(session, project_id, user), data)
 
 
+@router.get("/projects/{project_id}/schedule", tags=["D · planning CSP (n°3)"])
+async def schedule(project_id: int, session: AsyncSession = Depends(get_session),
+                   user: User = Depends(get_current_user)) -> dict[str, Any]:
+    """Dernier planning réel (sans recalcul) ; 404 s'il n'a jamais été calculé."""
+    return await scheduling.latest_schedule(session, await get_project(session, project_id, user))
+
+
 @router.post("/projects/{project_id}/solve-constraints", tags=["D · planning CSP (n°3)"])
 async def solve(project_id: int, data: SolveIn, session: AsyncSession = Depends(get_session),
                 user: User = Depends(get_current_user)) -> dict[str, Any]:

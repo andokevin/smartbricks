@@ -274,6 +274,60 @@ export interface TeamOut {
   absorbable: boolean;
 }
 
+// ---------------------------------------------------------------- module D — planning CSP
+
+export interface Assignment {
+  task_id: number;
+  ref: string;
+  title: string;
+  skill: string;
+  hours: number;
+  freelancer_id: number;
+  freelancer: string;
+  start: string;
+  end: string;
+  days: number;
+  depends_on: string[];
+  on_site_city: string | null;
+}
+
+export interface ConstraintCheck {
+  name: string;
+  passed: boolean;
+  details: string[];
+}
+
+export interface Schedule {
+  run_id: number;
+  scenario: "normal" | "impossible" | "date de test";
+  status: "OK" | "INFEASIBLE" | "UNKNOWN";
+  start_date: string;
+  deadline: string;
+  working_days_available: number;
+  makespan_days: number | null;
+  end_date: string | null;
+  lower_bound_days: number;
+  critical_path: string[];
+  optimal: boolean;
+  nodes: number;
+  elapsed_ms: number;
+  method: MethodChoice;
+  diagnostics: string[];
+  verification: { constraints_passed: boolean; checks: ConstraintCheck[] } | null;
+  assignments: Assignment[];
+  team: { id: number; name: string; hours_per_day: number }[];
+}
+
+export interface FreelancerInfo {
+  id: number;
+  name: string;
+  city: string;
+  hourly_rate_mga: number;
+  hours_per_day: number;
+  skills: Record<string, number>;
+  unavailability: { start: string; end: string; reason: string | null }[];
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

@@ -7,6 +7,7 @@ il sert à montrer le diagnostic sans abîmer le planning réel.
 from datetime import date, timedelta
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.algorithms.calendar import count_working_days
@@ -37,6 +38,19 @@ def scenario_deadline(project: Project, data: SolveIn) -> date:
         # Vendredi de la 3e semaine : 15 jours ouvrés si le projet commence un lundi.
         return project.start_date + timedelta(weeks=IMPOSSIBLE_WEEKS) - timedelta(days=3)
     return project.target_deadline
+
+
+async def latest_schedule(session: AsyncSession, project: Project) -> dict[str, Any]:
+    """Dernier planning réel calculé (les scénarios de test ne sont pas renvoyés), sans recalcul."""
+    run = await session.scalar(
+        select(ScheduleRun)
+        .where(ScheduleRun.project_id == project.id, ScheduleRun.report["scenario"].astext == "normal")
+        .order_by(ScheduleRun.id.desc())
+        .limit(1)
+    )
+    if run is None:
+        raise AppError(404, "Aucun planning calculé pour ce projet : lancez-le (POST /projects/{id}/solve-constraints).")
+    return {**run.report, "run_id": run.id}
 
 
 async def solve_constraints(session: AsyncSession, project: Project, data: SolveIn) -> dict[str, Any]:

@@ -12,7 +12,9 @@ import type {
   Draft,
   Feature,
   FeaturePatch,
+  FreelancerInfo,
   Health,
+  Schedule,
   Matching,
   Scope,
   TeamOut,
@@ -126,4 +128,10 @@ export const api = {
   },
   setTeam: (projectId: number, body: { freelancer_ids?: number[]; suggested?: boolean; preset?: string; weights?: Weights }) =>
     request<TeamOut>("POST", `/projects/${projectId}/team`, body),
+  freelancers: () => request<FreelancerInfo[]>("GET", "/freelancers"),
+
+  // Module D — planning CSP
+  schedule: (projectId: number) => request<Schedule>("GET", `/projects/${projectId}/schedule`),
+  solve: (projectId: number, scenario: "normal" | "impossible") =>
+    request<Schedule>("POST", `/projects/${projectId}/solve-constraints`, { scenario }),
 };
