@@ -15,6 +15,10 @@ MODÈLE CSP
         3. Disponibilité    : aucun jour de travail ne tombe sur une indisponibilité
         4. Non-chevauchement: un freelance fait une seule tâche à la fois
         5. Date limite      : fin_t ≤ date limite
+        6. Sur site (niveau B) : les tâches sur site d'un même freelance suivent l'ordre de la tournée
+                             (module E), avec un jour ouvré de trajet entre deux villes différentes
+                             (voir sites_compatible). Limite : le jour de trajet n'est pas réservé,
+                             une tâche à distance peut y être placée.
 
 RÉSOLUTION : retour arrière (backtracking) avec propagation
     a) Propagation de bornes AVANT la recherche (méthode du chemin critique, CPM) : avec la durée
@@ -63,6 +67,24 @@ class SchedTask:
     min_level: int
     hours: int
     depends_on: tuple[Id, ...] = ()
+    site: str | None = None  # ville de l'intervention si la tâche se fait sur site (niveau B)
+
+
+def sites_compatible(site_a: str, s_a: int, e_a: int, site_b: str, s_b: int, e_b: int,
+                     rank: Mapping[str, int], travel_days: int = 1) -> bool:
+    """Contrainte 6 (niveau B) entre deux tâches sur site d'un MÊME freelance (jours = index de jours ouvrés).
+
+    - Il faut `travel_days` jour(s) ouvré(s) libre(s) entre deux villes différentes (le trajet) ;
+      dans la même ville, il suffit de ne pas se chevaucher.
+    - Si les deux villes sont dans l'ordre de la tournée (`rank`), elles sont visitées dans cet ordre.
+    """
+    gap = travel_days if site_a != site_b else 0
+    a_first = s_b > e_a + gap
+    b_first = s_a > e_b + gap
+    ra, rb = rank.get(site_a), rank.get(site_b)
+    if ra is not None and rb is not None and ra != rb:
+        return a_first if ra < rb else b_first
+    return a_first or b_first
 
 
 @dataclass(frozen=True)
@@ -123,8 +145,11 @@ def solve_schedule(
     deadline: date,
     time_limit: float = 3.0,
     optimize: bool = True,
+    site_order: Sequence[str] = (),
+    travel_days: int = 1,
 ) -> ScheduleResult:
     t0 = time.perf_counter()
+    rank = {city: k for k, city in enumerate(site_order)}  # ordre de la tournée (module E)
     result = ScheduleResult(status="UNKNOWN")
 
     def done(status: str) -> ScheduleResult:
@@ -264,6 +289,16 @@ def solve_schedule(
     def earliest_start(u: Id) -> int:
         return max((assigned[p][2] + 1 for p in by_id[u].depends_on), default=0)
 
+    def site_ok(t: SchedTask, f: SchedFreelancer, s: int, e: int) -> bool:
+        """Contrainte 6 : ordre de la tournée et jour de trajet avec les autres tâches sur site de f déjà placées."""
+        if t.site is None:
+            return True
+        for v, (fv, sv, ev) in assigned.items():
+            other = by_id[v].site
+            if fv.id == f.id and other is not None and not sites_compatible(t.site, s, e, other, sv, ev, rank, travel_days):
+                return False
+        return True
+
     def values(u: Id) -> list[tuple[int, float, int, int, SchedFreelancer]]:
         """Domaine courant de u : couples (freelance, début) possibles, triés (fin, −score)."""
         t = by_id[u]
@@ -281,7 +316,7 @@ def solve_schedule(
                 s, e = ks[p], ks[p + dur - 1]
                 if e > lf(u):
                     break  # les fins ne font qu'augmenter
-                if not any(row[s : e + 1]):
+                if not any(row[s : e + 1]) and site_ok(t, f, s, e):
                     out.append((e, -f.score, team_index[f.id], s, f))
                 p += 1
         out.sort(key=lambda v: (v[0], v[1], v[2], v[3]))
@@ -330,7 +365,7 @@ def solve_schedule(
         for e, _, _, s, f in vals:
             if e > limit:
                 break  # la limite a pu se resserrer entre-temps
-            if any(busy[f.id][s : e + 1]):
+            if any(busy[f.id][s : e + 1]) or not site_ok(by_id[u], f, s, e):
                 continue
             assigned[u] = (f, s, e)
             busy[f.id][s : e + 1] = b"\x01" * (e - s + 1)
@@ -383,6 +418,8 @@ def verify_schedule(
     start: date,
     deadline: date,
     assignments: Mapping[Id, Assignment],
+    site_order: Sequence[str] = (),
+    travel_days: int = 1,
 ) -> dict[str, Any]:
     """Revérifie un planning SANS réutiliser le solveur, et produit un rapport contrainte par contrainte.
 
@@ -400,6 +437,7 @@ def verify_schedule(
             "Durées",
             "Pas de chevauchement",
             "Date limite",
+            "Sur site (ordre de la tournée)",
         )
     }
 
@@ -459,6 +497,23 @@ def verify_schedule(
                 issues["Pas de chevauchement"].append(
                     f"{people[fid].name} a deux tâches en même temps : {x.task_id} et {y.task_id}."
                 )
+
+    # 6. Sur site : ordre de la tournée et jour de trajet (jours comptés en jours ouvrés depuis le début).
+    rank = {city: k for k, city in enumerate(site_order)}
+
+    def wd(d: date) -> int:
+        return len(working_days(start, d)) - 1
+
+    for fid, items in per_person.items():
+        on_site = [a for a in items if by_id[a.task_id].site is not None]
+        for i, x in enumerate(on_site):
+            for y in on_site[i + 1:]:
+                sx, sy = by_id[x.task_id].site, by_id[y.task_id].site
+                if not sites_compatible(sx, wd(x.start), wd(x.end), sy, wd(y.start), wd(y.end), rank, travel_days):  # type: ignore[arg-type]
+                    issues["Sur site (ordre de la tournée)"].append(
+                        f"{people[fid].name} : « {by_id[x.task_id].title} » ({sx}) et « {by_id[y.task_id].title} » "
+                        f"({sy}) ne respectent pas l'ordre de la tournée ou le jour de trajet."
+                    )
 
     checks = [{"name": n, "passed": not det, "details": det} for n, det in issues.items()]
     return {"constraints_passed": all(c["passed"] for c in checks), "checks": checks}

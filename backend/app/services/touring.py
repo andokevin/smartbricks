@@ -18,7 +18,7 @@ from app.algorithms.geo import distance_matrix, travel_cost_mga, travel_hours
 from app.algorithms.solver_selector import solve_tour
 from app.algorithms.tsp import tour_length
 from app.errors import AppError, conflict
-from app.models import City, Project, TourRun
+from app.models import City, Project, ScheduleRun, TourRun
 from app.schemas import TourIn
 from app.services.project_data import load_freelancers, load_sites, load_tasks
 
@@ -87,6 +87,20 @@ async def compute_tour(session: AsyncSession, project: Project, data: TourIn, pe
     cost = travel_cost_mga(km, data.cost_per_km)
     gain_km = max(0.0, entered - km)
 
+    # Le planning (contrainte 6, niveau B) impose aux tâches sur site un ordre de tournée : est-ce celui-ci ?
+    plan = await session.scalar(
+        select(ScheduleRun)
+        .where(ScheduleRun.project_id == project.id, ScheduleRun.report["scenario"].astext == "normal")
+        .order_by(ScheduleRun.id.desc())
+        .limit(1)
+    )
+    planning_order: dict[str, Any] | None = None
+    if plan is not None and plan.report.get("site_order"):
+        site_names = {c.name for c in sites}
+        planned = [c for c in plan.report["site_order"]["cities"] if c in site_names]
+        shown = [c.name for c in order if c.name in site_names]
+        planning_order = {"cities": planned, "source": plan.report["site_order"]["source"], "matches": planned == shown}
+
     if persist:
         session.add(TourRun(project_id=project.id, freelancer_id=freelancer_id, method=tour.choice.method,
                             order=[c.name for c in order], distance_km=round(km, 1), cost_mga=cost))
@@ -110,6 +124,7 @@ async def compute_tour(session: AsyncSession, project: Project, data: TourIn, pe
         "entered_distance_km": round(entered, 1),
         "gain_km": round(gain_km, 1),
         "gain_mga": travel_cost_mga(gain_km, data.cost_per_km),
+        "planning_order": planning_order,
         "message": (
             f"Tournée de {round(km)} km ({format_ar(cost)}) contre {round(entered)} km dans l'ordre saisi : "
             f"{round(gain_km)} km économisés."

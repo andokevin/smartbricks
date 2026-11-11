@@ -290,6 +290,27 @@ export function PlanningPage() {
                     </Card>
                   )}
 
+                  {schedule.site_order && (
+                    <Card className="flex flex-col gap-space-xs p-space-lg">
+                      <span className="flex items-center gap-space-xs text-label-md uppercase tracking-wider text-on-surface">
+                        <Icon name="pin_drop" className="text-[18px] text-primary" />
+                        Ordre des visites sur site
+                      </span>
+                      <p className="text-body-sm text-on-surface">
+                        {schedule.site_order.cities.map((c, i) => (
+                          <span key={c}>
+                            {i > 0 && <span className="text-outline"> → </span>}
+                            <strong>{c}</strong>
+                          </span>
+                        ))}
+                      </p>
+                      <span className="text-body-sm text-on-surface-variant">
+                        D'après la {schedule.site_order.source} ; {schedule.site_order.travel_days} jour ouvré de trajet entre deux villes
+                        différentes. Le jour de trajet n'est pas réservé : une tâche à distance peut y être placée.
+                      </span>
+                    </Card>
+                  )}
+
                   <DelayPanel
                     schedule={schedule}
                     onRepaired={(s) => {

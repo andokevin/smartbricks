@@ -16,9 +16,10 @@ from app.algorithms.matching import PRESETS, evaluate, weighted_ranking
 from app.algorithms.min_conflicts import lengthen, repair_schedule
 from app.algorithms.solver_selector import solve_schedule_auto
 from app.errors import AppError, conflict, not_found
-from app.models import Project, ProjectStatus, ScheduleRun, Task, TaskStatus, User
-from app.schemas import DelayIn, SolveIn
+from app.models import Project, ProjectStatus, ScheduleRun, Task, TaskStatus, TourRun, User
+from app.schemas import DelayIn, SolveIn, TourIn
 from app.services.matching_service import get_team
+from app.services.touring import compute_tour
 from app.services.project_data import (
     get_project,
     load_task_dependencies,
@@ -81,7 +82,8 @@ async def _load_inputs(session: AsyncSession, project: Project) -> _Inputs:
                                                       PRESETS["Équilibré"])}
     sched_tasks = [
         SchedTask(id=t.id, title=f"{t.ref} {t.title}", skill=t.required_skill.name, min_level=t.min_level,
-                  hours=t.estimated_hours, depends_on=tuple(deps[t.id]))
+                  hours=t.estimated_hours, depends_on=tuple(deps[t.id]),
+                  site=t.on_site_city.name if t.on_site_city else None)
         for t in tasks
     ]
     sched_team = [
@@ -90,6 +92,37 @@ async def _load_inputs(session: AsyncSession, project: Project) -> _Inputs:
         for p in team
     ]
     return _Inputs(tasks, team, deps, sched_tasks, sched_team)
+
+
+TRAVEL_DAYS = 1  # jour ouvré de trajet entre deux villes différentes (contrainte 6)
+
+
+async def _site_order(session: AsyncSession, project: Project, inp: _Inputs) -> dict[str, Any] | None:
+    """Ordre de visite des villes imposé aux tâches sur site (contrainte 6, niveau B).
+
+    1. la dernière tournée VALIDÉE (POST /tour) fait foi ;
+    2. sinon, tournée optimale (Held-Karp, module E) au départ de la ville du technicien probable :
+       le membre de l'équipe qui sait faire le plus de tâches sur site (puis le meilleur score) —
+       c'est aussi le technicien que l'écran Tournée propose par défaut une fois le planning fait.
+    """
+    on_site = [s for s in inp.sched_tasks if s.site is not None]
+    if not on_site:
+        return None
+    run = await session.scalar(
+        select(TourRun).where(TourRun.project_id == project.id).order_by(TourRun.id.desc()).limit(1)
+    )
+    if run is not None:
+        return {"cities": list(run.order), "source": "tournée validée", "travel_days": TRAVEL_DAYS}
+    able = [(sum(1 for t in on_site if f.can_do(t)), f.score, f) for f in inp.sched_team]
+    count, _, tech = max(able, key=lambda x: (x[0], x[1]))
+    if count == 0:
+        return None  # personne ne peut aller sur site : le CSP le diagnostiquera (compétence absente)
+    tour = await compute_tour(session, project, TourIn(freelancer_id=tech.id, closed=True), persist=False)
+    return {
+        "cities": [stop["name"] for stop in tour["order"]],
+        "source": f"tournée optimale au départ de {tour['start']['name']} (ville de {tech.name})",
+        "travel_days": TRAVEL_DAYS,
+    }
 
 
 def _rows(inp: _Inputs, assignments: dict[Any, Assignment], hours: dict[int, int] | None = None) -> list[dict[str, Any]]:
@@ -137,13 +170,17 @@ async def propagate_delay(session: AsyncSession, user: User, task_id: int, data:
         current[t.id] = Assignment(t.id, f.id, t.start_date, t.end_date, f.duration(sched))
 
     deadline = project.target_deadline
+    # Même ordre de tournée que le planning qu'on répare (cohérence de la contrainte 6).
+    sites = previous.get("site_order")
+    order = sites["cities"] if sites else []
     result = repair_schedule(inp.sched_tasks, inp.sched_team, project.start_date, deadline, current,
-                             task_id, data.delay_hours)
+                             task_id, data.delay_hours, site_order=order, travel_days=TRAVEL_DAYS)
     longer = lengthen(inp.sched_tasks, task_id, data.delay_hours)
     delayed = inp.by_task[task_id]
     # Point de comparaison : une replanification COMPLÈTE par le CSP (n°3), limitée à 1 s. Elle donne souvent
     # un planning plus court, mais déplace plus de tâches : le client choisit en connaissance de cause.
-    full = solve_schedule(longer, inp.sched_team, project.start_date, deadline, time_limit=1.0)
+    full = solve_schedule(longer, inp.sched_team, project.start_date, deadline, time_limit=1.0,
+                          site_order=order, travel_days=TRAVEL_DAYS)
     full_replan = {
         "status": full.status,
         "makespan_days": full.makespan_days,
@@ -175,7 +212,8 @@ async def propagate_delay(session: AsyncSession, user: User, task_id: int, data:
     if result.status != "OK":
         return {"repair": repair, "schedule": None}
 
-    report = verify_schedule(longer, inp.sched_team, project.start_date, deadline, result.assignments)
+    report = verify_schedule(longer, inp.sched_team, project.start_date, deadline, result.assignments,
+                             site_order=order, travel_days=TRAVEL_DAYS)
     if not report["constraints_passed"]:  # garde-fou : jamais de planning faux enregistré
         raise AppError(500, "Planning réparé refusé par la vérification indépendante.")
     bound = full  # borne et chemin critique recalculés avec la nouvelle durée (propagation du CSP)
@@ -198,6 +236,7 @@ async def propagate_delay(session: AsyncSession, user: User, task_id: int, data:
         "verification": report,
         "assignments": _rows(inp, result.assignments, new_hours),
         "team": [{"id": p.id, "name": p.user.name, "hours_per_day": p.hours_per_day} for p in inp.team],
+        "site_order": sites,
         "repair": repair,
     }
     run = ScheduleRun(project_id=project.id, method=result.method, status="OK",
@@ -218,9 +257,13 @@ async def solve_constraints(session: AsyncSession, project: Project, data: Solve
         raise AppError(422, "La date limite doit être après le début du projet.")
     inp = await _load_inputs(session, project)
     team, by_task, sched_tasks, sched_team = inp.team, inp.by_task, inp.sched_tasks, inp.sched_team
-    result, choice = solve_schedule_auto(sched_tasks, sched_team, project.start_date, deadline)
+    sites = await _site_order(session, project, inp)
+    order = sites["cities"] if sites else []
+    result, choice = solve_schedule_auto(sched_tasks, sched_team, project.start_date, deadline,
+                                         site_order=order, travel_days=TRAVEL_DAYS)
     report = (
-        verify_schedule(sched_tasks, sched_team, project.start_date, deadline, result.assignments)
+        verify_schedule(sched_tasks, sched_team, project.start_date, deadline, result.assignments,
+                        site_order=order, travel_days=TRAVEL_DAYS)
         if result.status == "OK"
         else None
     )
@@ -247,6 +290,7 @@ async def solve_constraints(session: AsyncSession, project: Project, data: Solve
         "verification": report,
         "assignments": assignments,
         "team": [{"id": p.id, "name": p.user.name, "hours_per_day": p.hours_per_day} for p in team],
+        "site_order": sites,
     }
 
     run = ScheduleRun(project_id=project.id, method=result.method, status=result.status,

@@ -14,7 +14,9 @@ POURQUOI « HYPER-HEURISTIQUE »
     | Sac à dos (n°29)     | ≤ 40 fonctionnalités : séparation     | glouton par densité + échanges 1-1     |
     |                      | et évaluation                         |                                        |
     | Voyageur (n°30)      | ≤ 12 sites : Held-Karp                | plus proche voisin + 2-opt             |
-    | CSP (n°3)            | retour arrière + propagation, 3 s     | Min-Conflict (niveau B)                |
+    | CSP (n°3)            | retour arrière + propagation, 3 s     | meilleure solution trouvée à 3 s ;     |
+    |                      |                                       | Min-Conflict (n°11) répare un planning |
+    |                      |                                       | existant après un retard               |
 
     Les seuils viennent du coût des méthodes exactes : le sac à dos exact est exponentiel au pire
     mais l'élagage le rend instantané jusqu'à quelques dizaines d'objets ; Held-Karp coûte
@@ -129,10 +131,13 @@ def solve_schedule_auto(
     start: date,
     deadline: date,
     time_limit: float = CSP_TIME_LIMIT_S,
+    site_order: Sequence[str] = (),
+    travel_days: int = 1,
 ) -> tuple[ScheduleResult, MethodChoice]:
     """Lance le CSP et complète la raison selon l'issue (optimal prouvé, limite atteinte, échec)."""
     base = choose_csp_method(len(tasks), time_limit)
-    result = solve_schedule(tasks, team, start, deadline, time_limit=time_limit)
+    result = solve_schedule(tasks, team, start, deadline, time_limit=time_limit,
+                            site_order=site_order, travel_days=travel_days)
     if result.status == "OK" and result.optimal:
         outcome = "Le planning trouvé est optimal (durée minimale prouvée)."
     elif result.status == "OK":
@@ -144,8 +149,8 @@ def solve_schedule_auto(
         outcome = "Impossibilité prouvée : voir le diagnostic."
     else:
         outcome = (
-            "Aucun planning trouvé dans le temps imparti. La réparation par Min-Conflict "
-            "(n°11) est prévue au niveau B."
+            "Aucun planning trouvé dans le temps imparti : repoussez la date limite ou ajoutez un freelance. "
+            "(Min-Conflict, n°11, sert à réparer un planning existant après un retard.)"
         )
     choice = MethodChoice(base.problem, result.method, base.exact, f"{base.reason} {outcome}", base.course_number)
     return result, choice

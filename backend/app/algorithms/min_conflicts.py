@@ -18,7 +18,9 @@ IDÉE (recherche locale de Minton et al., 1992)
         - dépendance : la tâche commence avant la fin d'une tâche dont elle dépend (le conflit est
           compté pour la tâche qui attend : le retard se propage vers l'aval) ;
         - chevauchement : le même freelance a une autre tâche sur un de ces jours ;
-        - date limite : la tâche finit après la date limite.
+        - date limite : la tâche finit après la date limite ;
+        - sur site (niveau B) : deux tâches sur site du même freelance hors de l'ordre de la tournée,
+          ou sans jour de trajet entre deux villes différentes.
     Compétences et disponibilités ne peuvent pas être violées : on ne propose que des freelances
     compétents, et la fin est calculée sur les jours où le freelance est disponible.
 
@@ -48,7 +50,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from app.algorithms.calendar import working_days
-from app.algorithms.csp_scheduler import Assignment, SchedFreelancer, SchedTask
+from app.algorithms.csp_scheduler import Assignment, SchedFreelancer, SchedTask, sites_compatible
 
 Id = Hashable
 HORIZON_DAYS = 365  # jours calendaires au-delà de la date limite où l'on sait encore calculer une fin
@@ -108,8 +110,11 @@ def repair_schedule(
     extra_hours: int,
     max_steps: int = 5_000,
     seed: int = 0,
+    site_order: Sequence[str] = (),
+    travel_days: int = 1,
 ) -> RepairResult:
     t0 = time.perf_counter()
+    rank = {city: k for k, city in enumerate(site_order)}  # contrainte 6 : ordre de la tournée
     if extra_hours <= 0:
         raise ValueError("Le retard doit être un nombre d'heures strictement positif.")
     tasks = lengthen(tasks, delayed_id, extra_hours)
@@ -185,8 +190,16 @@ def repair_schedule(
             for q in succs[tid]:
                 if val[q][1] <= e:  # un successeur commence avant notre fin
                     n += 1
+        site = by_id[tid].site
         for u, (fu, su, eu) in val.items():
-            if u != tid and fu == fid and not (eu < s or su > e):  # même freelance, jours communs
+            if u == tid or fu != fid:
+                continue
+            other = by_id[u].site
+            if site is not None and other is not None:
+                # deux tâches sur site du même freelance : ordre de la tournée + jour de trajet (contrainte 6)
+                if not sites_compatible(site, s, e, other, su, eu, rank, travel_days):
+                    n += 1
+            elif not (eu < s or su > e):  # même freelance, jours communs
                 n += 1
         if e > last:
             n += 1

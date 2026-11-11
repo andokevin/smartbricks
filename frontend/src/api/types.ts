@@ -316,6 +316,8 @@ export interface Schedule {
   verification: { constraints_passed: boolean; checks: ConstraintCheck[] } | null;
   assignments: Assignment[];
   team: { id: number; name: string; hours_per_day: number }[];
+  /** Ordre de visite imposé aux tâches sur site (contrainte 6, niveau B) ; null sans tâche sur site. */
+  site_order?: { cities: string[]; source: string; travel_days: number } | null;
   /** Présent quand ce planning est issu d'une réparation après un retard (Min-Conflict n°11). */
   repair?: Repair;
 }
@@ -380,6 +382,8 @@ export interface Tour {
   gain_km: number;
   gain_mga: number;
   message: string;
+  /** Ordre imposé aux tâches sur site par le dernier planning (contrainte 6), et s'il correspond à cette tournée. */
+  planning_order?: { cities: string[]; source: string; matches: boolean } | null;
 }
 
 export interface TourOptions {

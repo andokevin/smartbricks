@@ -104,6 +104,18 @@ export function TourPage() {
 
           {error && <ErrorBanner message={error} />}
 
+          {tour?.planning_order && !tour.planning_order.matches && (
+            <div className="flex items-start gap-space-sm rounded-2xl bg-tertiary-fixed/40 p-space-md text-body-md text-on-surface">
+              <Icon name="sync_problem" className="mt-0.5 text-tertiary" />
+              <p>
+                Le planning actuel fait les interventions dans un autre ordre ({tour.planning_order.cities.join(" → ")}).{" "}
+                {tour.saved
+                  ? "Recalculez le planning pour qu'il suive cette tournée validée."
+                  : "Si vous validez cette tournée, recalculez ensuite le planning pour qu'il la suive."}
+              </p>
+            </div>
+          )}
+
           {tour && (
             <div className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
               {/* Carte */}
