@@ -215,6 +215,65 @@ export interface FeaturePatch {
   is_mandatory?: boolean;
 }
 
+// ---------------------------------------------------------------- module C — matching
+
+export type CriterionKey = "cost" | "speed" | "quality" | "availability" | "coverage";
+export type Weights = Record<CriterionKey, number>;
+
+export interface MatchingRow {
+  rank: number;
+  id: number;
+  name: string;
+  city: string;
+  hourly_rate_mga: number;
+  hours_per_day: number;
+  skills: Record<string, number>;
+  criteria: { cost: number; speed: number | null; quality: number; availability: number; coverage: number };
+  normalized: Weights;
+  contributions: Weights;
+  score: number;
+  front: number;
+  best_compromise: boolean;
+}
+
+export interface TaskNeed {
+  id: number;
+  skill: string;
+  min_level: number;
+  hours: number;
+}
+
+export interface Matching {
+  preset: string;
+  weights: Weights;
+  criteria_labels: Record<CriterionKey, string>;
+  pareto_criteria: CriterionKey[];
+  tasks_considered: number;
+  total_hours: number;
+  working_days: number;
+  tasks: TaskNeed[];
+  ranking: MatchingRow[];
+  fronts: number[][];
+  best_compromise: number | null;
+  suggested_team: { members: number[]; absorbable: boolean; warnings: string[] };
+}
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  city: string;
+  hourly_rate_mga: number;
+  hours_per_day: number;
+  skills: Record<string, number>;
+}
+
+export interface TeamOut {
+  project_id: number;
+  members: TeamMember[];
+  warnings: string[];
+  absorbable: boolean;
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

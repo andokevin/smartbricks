@@ -232,6 +232,9 @@ class TeamIn(BaseModel):
     freelancer_ids: list[int] | None = None
     suggested: bool = False
     preset: str = Field(default="Équilibré", description="Préréglage utilisé pour l'équipe suggérée.")
+    weights: dict[str, float] | None = Field(
+        default=None, description="Poids des curseurs (prioritaires sur le préréglage) pour l'équipe suggérée."
+    )
 
 
 class TeamMemberOut(BaseModel):

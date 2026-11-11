@@ -87,6 +87,11 @@ async def test_parcours_complet_boutique_soa(client: AsyncClient, demo: dict[str
     assert eco["best_compromise"] in eco["fronts"][0]
     assert all(x["front"] >= 1 for x in eco["ranking"])
 
+    assert {"id", "skill", "min_level", "hours"} <= set(eco["tasks"][0])  # besoins exposés à l'interface
+    custom = (await client.post(f"{API}/projects/{pid}/team", headers=h,
+                                json={"suggested": True, "weights": {"cost": 1}})).json()
+    assert custom["members"]  # équipe suggérée avec les poids des curseurs
+
     t = (await client.post(f"{API}/projects/{pid}/team", headers=h, json={"suggested": True})).json()
     assert t["members"] and t["absorbable"] and t["warnings"] == []
 

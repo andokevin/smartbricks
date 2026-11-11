@@ -106,6 +106,8 @@ async def compute_matching(
         "criteria_labels": LABELS,
         "pareto_criteria": keys,
         "tasks_considered": len(needs),
+        # Besoins des tâches retenues : permettent à l'interface de montrer ce que couvre l'équipe choisie.
+        "tasks": [{"id": n.id, "skill": n.skill, "min_level": n.min_level, "hours": n.hours} for n in needs],
         "total_hours": sum(n.hours for n in needs),
         "working_days": total_working_days(project),
         "ranking": [row(k + 1, r) for k, r in enumerate(ranking)],
@@ -120,7 +122,7 @@ async def set_team(session: AsyncSession, project: Project, data: TeamIn) -> Tea
     by_id = {p.id: p for p in profiles}
     warnings: list[str] = []
     if data.suggested:
-        weights, _ = resolve_weights(data.preset, {})
+        weights, _ = resolve_weights(data.preset, data.weights or {})
         crit = evaluate(candidates, needs, total_working_days(project))
         suggestion = suggest_team(candidates, needs, weighted_ranking(crit, weights))
         ids = [int(i) for i in suggestion.members]  # type: ignore[call-overload]

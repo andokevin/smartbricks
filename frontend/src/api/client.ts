@@ -13,7 +13,10 @@ import type {
   Feature,
   FeaturePatch,
   Health,
+  Matching,
   Scope,
+  TeamOut,
+  Weights,
   Project,
   ProjectSummary,
   ResetDemoOut,
@@ -113,4 +116,14 @@ export const api = {
   runScope: (projectId: number) => request<Scope>("POST", `/projects/${projectId}/scope`),
   patchFeature: (featureId: number, patch: FeaturePatch) =>
     request<Feature>("PATCH", `/features/${featureId}`, patch),
+
+  // Module C — matching
+  matching: (projectId: number, opts: { preset?: string; weights?: Weights; pareto: string[] }) => {
+    const q = new URLSearchParams({ pareto: opts.pareto.join(",") });
+    if (opts.preset) q.set("preset", opts.preset);
+    if (opts.weights) for (const [k, v] of Object.entries(opts.weights)) q.set(`w_${k}`, String(v));
+    return request<Matching>("GET", `/projects/${projectId}/matching?${q.toString()}`);
+  },
+  setTeam: (projectId: number, body: { freelancer_ids?: number[]; suggested?: boolean; preset?: string; weights?: Weights }) =>
+    request<TeamOut>("POST", `/projects/${projectId}/team`, body),
 };
