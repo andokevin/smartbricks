@@ -58,7 +58,7 @@ Elle traduit les identifiants en indices `0..n-1` et précalcule tout ce que les
 
 `infeasible` (l. 167-195) détecte le cas impossible **avant toute recherche** : si l'ensemble forcé ne tient pas, on renvoie le montant et les heures qui manquent. On renvoie alors `optimal=True` : l'impossibilité est prouvée.
 
-### 1.4 `branch_and_bound` (l. 201-317), lecture ligne par ligne
+### 1.4 `branch_and_bound` (l. 201-318), lecture ligne par ligne
 
 ```python
 t0 = time.perf_counter()
@@ -92,7 +92,7 @@ best_set = {index[i] for i in start.selected}
 ```
 **Solution initiale gloutonne.** Une bonne valeur de départ permet d'élaguer dès les premiers nœuds.
 
-`fractional(order_by_ratio, capacity, weight_of)` (l. 252-266) : sac à dos **fractionnaire** sur une seule dimension. On ignore les objets déjà décidés, on prend les autres par ratio décroissant, et le dernier en fraction (`it.value * capacity / w`). C'est l'algorithme glouton exact du sac à dos fractionnaire.
+`fractional(order_by_ratio, capacity, weight_of)` (l. 253-267) : sac à dos **fractionnaire** sur une seule dimension. On ignore les objets déjà décidés, on prend les autres par ratio décroissant, et le dernier en fraction (`it.value * capacity / w`). C'est l'algorithme glouton exact du sac à dos fractionnaire.
 
 La récursion `dfs(pos, value, cost, hours)` :
 
