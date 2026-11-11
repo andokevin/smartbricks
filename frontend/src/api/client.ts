@@ -18,6 +18,8 @@ import type {
   Matching,
   Scope,
   TeamOut,
+  Tour,
+  TourOptions,
   Weights,
   Project,
   ProjectSummary,
@@ -134,4 +136,12 @@ export const api = {
   schedule: (projectId: number) => request<Schedule>("GET", `/projects/${projectId}/schedule`),
   solve: (projectId: number, scenario: "normal" | "impossible") =>
     request<Schedule>("POST", `/projects/${projectId}/solve-constraints`, { scenario }),
+
+  // Module E — tournée
+  tourPreview: (projectId: number, o: TourOptions) => {
+    const q = new URLSearchParams({ closed: String(o.closed), cost_per_km: String(o.cost_per_km) });
+    if (o.freelancer_id !== null) q.set("freelancer_id", String(o.freelancer_id));
+    return request<Tour>("GET", `/projects/${projectId}/tour?${q.toString()}`);
+  },
+  saveTour: (projectId: number, o: TourOptions) => request<Tour>("POST", `/projects/${projectId}/tour`, o),
 };

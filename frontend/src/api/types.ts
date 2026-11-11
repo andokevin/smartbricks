@@ -328,6 +328,40 @@ export interface FreelancerInfo {
   unavailability: { start: string; end: string; reason: string | null }[];
 }
 
+// ---------------------------------------------------------------- module E — tournée
+
+export interface TourStop {
+  step: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface Tour {
+  saved: boolean;
+  method: MethodChoice;
+  technician: { id: number; name: string; city: string } | null;
+  start: { name: string; reason: string };
+  closed: boolean;
+  order: TourStop[];
+  legs: { from: string; to: string; km: number }[];
+  distance_km: number;
+  cost_mga: number;
+  duration_h: number;
+  cost_per_km: number;
+  entered_order: string[];
+  entered_distance_km: number;
+  gain_km: number;
+  gain_mga: number;
+  message: string;
+}
+
+export interface TourOptions {
+  freelancer_id: number | null;
+  closed: boolean;
+  cost_per_km: number;
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

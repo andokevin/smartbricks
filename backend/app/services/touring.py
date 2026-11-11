@@ -22,7 +22,8 @@ from app.schemas import TourIn
 from app.services.project_data import load_freelancers, load_sites, load_tasks
 
 
-async def compute_tour(session: AsyncSession, project: Project, data: TourIn) -> dict[str, Any]:
+async def compute_tour(session: AsyncSession, project: Project, data: TourIn, persist: bool = True) -> dict[str, Any]:
+    """Calcule la tournée. `persist=False` (GET) : aperçu, rien n'est enregistré dans tour_runs."""
     sites = [s.city for s in await load_sites(session, project.id)]
     if not sites:
         raise conflict("Ce projet ne demande aucune intervention sur site.")
@@ -62,11 +63,13 @@ async def compute_tour(session: AsyncSession, project: Project, data: TourIn) ->
     cost = travel_cost_mga(km, data.cost_per_km)
     gain_km = max(0.0, entered - km)
 
-    session.add(TourRun(project_id=project.id, freelancer_id=freelancer_id, method=tour.choice.method,
-                        order=[c.name for c in order], distance_km=round(km, 1), cost_mga=cost))
-    await session.commit()
+    if persist:
+        session.add(TourRun(project_id=project.id, freelancer_id=freelancer_id, method=tour.choice.method,
+                            order=[c.name for c in order], distance_km=round(km, 1), cost_mga=cost))
+        await session.commit()
 
     return {
+        "saved": persist,
         "algorithm": {"number": 30, "name": "Voyageur de commerce"},
         "method": tour.choice.__dict__,
         "technician": technician,

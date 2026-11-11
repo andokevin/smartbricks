@@ -107,6 +107,20 @@ async def solve(project_id: int, data: SolveIn, session: AsyncSession = Depends(
     return await scheduling.solve_constraints(session, await get_project(session, project_id, user), data)
 
 
+@router.get("/projects/{project_id}/tour", tags=["E · tournée (n°30)"])
+async def tour_preview(
+    project_id: int,
+    freelancer_id: int | None = None,
+    closed: bool = True,
+    cost_per_km: int = Query(default=1_200, gt=0),
+    session: AsyncSession = Depends(get_session),
+    user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    """Même calcul que POST, sans rien enregistrer : aperçu pendant que le client règle les options."""
+    data = TourIn(freelancer_id=freelancer_id, closed=closed, cost_per_km=cost_per_km)
+    return await touring.compute_tour(session, await get_project(session, project_id, user), data, persist=False)
+
+
 @router.post("/projects/{project_id}/tour", tags=["E · tournée (n°30)"])
 async def tour(project_id: int, data: TourIn, session: AsyncSession = Depends(get_session),
                user: User = Depends(get_current_user)) -> dict[str, Any]:
