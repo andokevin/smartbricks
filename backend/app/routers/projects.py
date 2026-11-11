@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
@@ -24,6 +24,7 @@ from app.schemas import (
 from app.security import get_current_user
 from app.services import explaining, matching_service, projects_view, scheduling, scoping, touring
 from app.services.project_data import get_project
+from app.services.spec_pdf import build_spec_pdf
 
 router = APIRouter(tags=["projets"])
 
@@ -142,6 +143,17 @@ async def tour(project_id: int, data: TourIn, session: AsyncSession = Depends(ge
                user: User = Depends(get_current_user)) -> dict[str, Any]:
     """Ordre optimal des visites sur site, distance, coût, durée, gain par rapport à l'ordre saisi."""
     return await touring.compute_tour(session, await get_project(session, project_id, user), data)
+
+
+@router.get("/projects/{project_id}/cahier-des-charges.pdf", tags=["projets"], response_class=Response,
+            responses={200: {"content": {"application/pdf": {}}}})
+async def spec_pdf(project_id: int, session: AsyncSession = Depends(get_session),
+                   user: User = Depends(get_current_user)) -> Response:
+    """Niveau B — cahier des charges généré, en PDF, à partir des seuls résultats enregistrés."""
+    project = await get_project(session, project_id, user)
+    content = await build_spec_pdf(session, project)
+    return Response(content=content, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="cahier-des-charges-projet-{project_id}.pdf"'})
 
 
 @router.post("/projects/{project_id}/explain", response_model=ExplainOut, tags=["A · copilote (n°33)"])

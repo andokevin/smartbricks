@@ -18,6 +18,9 @@ email-validator>=2.2
 anthropic>=2.8
 google-genai>=1.0
 
+# Export PDF du cahier des charges (niveau B) ; police DejaVu fournie dans app/assets/fonts
+fpdf2>=2.8
+
 # Tests
 pytest>=8.3
 pytest-asyncio>=0.24

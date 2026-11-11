@@ -105,6 +105,31 @@ export async function request<T>(method: string, path: string, body?: unknown): 
   return data as T;
 }
 
+/** Télécharge le cahier des charges en PDF (niveau B). Le jeton est exigé : on passe par fetch, puis un lien temporaire. */
+export async function downloadSpecPdf(projectId: number): Promise<void> {
+  const token = getToken();
+  let response: Response;
+  try {
+    response = await fetch(`${BASE}/projects/${projectId}/cahier-des-charges.pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  } catch {
+    throw new ApiError(0, "Serveur injoignable : vérifiez que l'API est lancée.");
+  }
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ApiError(response.status, errorMessage(text ? JSON.parse(text) : null, response.status));
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `cahier-des-charges-projet-${projectId}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 /** Lecture facultative : renvoie null si la ressource n'existe pas encore (404). */
 export async function orNull<T>(promise: Promise<T>): Promise<T | null> {
   try {

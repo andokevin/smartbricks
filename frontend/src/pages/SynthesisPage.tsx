@@ -6,7 +6,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { api, orNull } from "../api/client";
+import { api, downloadSpecPdf, orNull } from "../api/client";
 import type { Explanation, Project } from "../api/types";
 import { AppShell } from "../components/AppShell";
 import { StepHeader } from "../components/StepHeader";
@@ -58,6 +58,8 @@ export function SynthesisPage() {
   const [explaining, setExplaining] = useState(false);
   const [explainError, setExplainError] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   async function explain(q: string | null) {
     setExplaining(true);
@@ -108,11 +110,28 @@ export function SynthesisPage() {
             title="Synthèse de votre projet"
             subtitle="Le plan complet, expliqué en français simple. Chaque chiffre vient des algorithmes des étapes précédentes."
             actions={
-              <Button variant="secondary" icon="print" onClick={() => window.print()} className="print:hidden">
-                Imprimer / PDF
-              </Button>
+              <>
+                <Button
+                  icon="picture_as_pdf"
+                  disabled={pdfBusy}
+                  onClick={() => {
+                    setPdfBusy(true);
+                    setPdfError(null);
+                    downloadSpecPdf(projectId)
+                      .catch((e: unknown) => setPdfError(e instanceof Error ? e.message : String(e)))
+                      .finally(() => setPdfBusy(false));
+                  }}
+                  className="print:hidden"
+                >
+                  {pdfBusy ? "Préparation…" : "Cahier des charges (PDF)"}
+                </Button>
+                <Button variant="secondary" icon="print" onClick={() => window.print()} className="print:hidden">
+                  Imprimer cette page
+                </Button>
+              </>
             }
           />
+          {pdfError && <ErrorBanner message={pdfError} />}
 
           {/* Chiffres clés */}
           <section className="grid grid-cols-1 gap-space-md sm:grid-cols-2 xl:grid-cols-4">
