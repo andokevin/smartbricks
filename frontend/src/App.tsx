@@ -4,16 +4,16 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { useAuth } from "./auth/AuthContext";
 import { Spinner } from "./components/ui";
-import { STEPS } from "./lib/steps";
 import { CopilotPage } from "./pages/CopilotPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProjectCopilotPage } from "./pages/ProjectCopilotPage";
 import { PlanningPage } from "./pages/PlanningPage";
 import { ScopePage } from "./pages/ScopePage";
+import { SynthesisPage } from "./pages/SynthesisPage";
 import { TeamPage } from "./pages/TeamPage";
 import { TourPage } from "./pages/TourPage";
 import { LoginPage } from "./pages/LoginPage";
-import { ProjectPlaceholderPage, SimplePlaceholderPage } from "./pages/ProjectPlaceholderPage";
+import { SimplePlaceholderPage } from "./pages/ProjectPlaceholderPage";
 
 function RequireAuth({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
@@ -40,13 +40,7 @@ export default function App() {
       <Route path="/projets/:projectId/equipe" element={<RequireAuth><TeamPage /></RequireAuth>} />
       <Route path="/projets/:projectId/planning" element={<RequireAuth><PlanningPage /></RequireAuth>} />
       <Route path="/projets/:projectId/tournee" element={<RequireAuth><TourPage /></RequireAuth>} />
-      {STEPS.filter((s) => !["copilote", "perimetre", "equipe", "planning", "tournee"].includes(s.key)).map((s) => (
-        <Route
-          key={s.key}
-          path={`/projets/:projectId/${s.key}`}
-          element={<RequireAuth><ProjectPlaceholderPage step={s.key} /></RequireAuth>}
-        />
-      ))}
+      <Route path="/projets/:projectId/synthese" element={<RequireAuth><SynthesisPage /></RequireAuth>} />
       <Route path="/admin/benchmark" element={<RequireAuth><SimplePlaceholderPage title="Comparaison des méthodes" /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

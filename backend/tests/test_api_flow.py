@@ -122,6 +122,8 @@ async def test_parcours_complet_boutique_soa(client: AsyncClient, demo: dict[str
     assert preview["saved"] is False
     tour = (await client.post(f"{API}/projects/{pid}/tour", headers=h, json={"closed": True})).json()
     assert tour["saved"] and tour["order"] == preview["order"] and tour["distance_km"] == preview["distance_km"]
+    run = (await client.get(f"{API}/projects/{pid}/tour-run", headers=h)).json()
+    assert run["order"] == [o["name"] for o in tour["order"]] and run["cost_mga"] == tour["cost_mga"]
     assert tour["method"]["method"] == "Held-Karp"
     assert sorted(o["name"] for o in tour["order"]) == ["Antananarivo", "Antsirabe", "Fianarantsoa", "Toamasina"]
     assert tour["distance_km"] <= tour["entered_distance_km"]

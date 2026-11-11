@@ -121,6 +121,13 @@ async def tour_preview(
     return await touring.compute_tour(session, await get_project(session, project_id, user), data, persist=False)
 
 
+@router.get("/projects/{project_id}/tour-run", tags=["E · tournée (n°30)"])
+async def tour_run(project_id: int, session: AsyncSession = Depends(get_session),
+                   user: User = Depends(get_current_user)) -> dict[str, Any]:
+    """Dernière tournée validée (enregistrée par POST /tour) ; 404 si aucune."""
+    return await touring.latest_tour_run(session, await get_project(session, project_id, user))
+
+
 @router.post("/projects/{project_id}/tour", tags=["E · tournée (n°30)"])
 async def tour(project_id: int, data: TourIn, session: AsyncSession = Depends(get_session),
                user: User = Depends(get_current_user)) -> dict[str, Any]:

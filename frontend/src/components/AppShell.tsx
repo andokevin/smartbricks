@@ -168,7 +168,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-surface">
       {/* Barre latérale fixe (ordinateur) */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-y-auto bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-y-auto bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] lg:block print:hidden">
         <SideNav project={project} />
       </aside>
 
@@ -182,9 +182,9 @@ export function AppShell({
         </div>
       )}
 
-      <div className="lg:pl-64">
+      <div className="lg:pl-64 print:pl-0">
         {/* En-tête */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-space-sm bg-surface/85 px-4 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl lg:px-space-lg">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-space-sm bg-surface/85 px-4 shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-xl lg:px-space-lg print:hidden">
           <button
             className="flex h-11 w-11 items-center justify-center rounded-lg text-primary hover:bg-surface-container lg:hidden"
             onClick={() => setDrawer(true)}
@@ -232,7 +232,7 @@ export function AppShell({
 
       {/* Barre du bas (mobile) : les étapes du projet */}
       {project && (
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-outline-variant bg-surface-container-lowest/95 backdrop-blur-xl lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-outline-variant bg-surface-container-lowest/95 backdrop-blur-xl lg:hidden print:hidden">
           <div className="flex h-16 items-stretch">
             {STEPS.map((step) => (
               <NavLink

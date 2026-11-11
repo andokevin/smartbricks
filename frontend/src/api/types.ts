@@ -362,6 +362,26 @@ export interface TourOptions {
   cost_per_km: number;
 }
 
+export interface TourRun {
+  id: number;
+  method: string;
+  order: string[];
+  distance_km: number;
+  cost_mga: number;
+  technician: { id: number; name: string; city: string } | null;
+  created_at: string;
+}
+
+// ---------------------------------------------------------------- module A — explication
+
+export interface Explanation {
+  text: string;
+  provider: string;
+  replaced: boolean;
+  unknown_numbers: string[];
+  fallback_reason: string | null;
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

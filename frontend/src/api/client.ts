@@ -10,6 +10,7 @@ import type {
   ConfirmOut,
   Conversation,
   Draft,
+  Explanation,
   Feature,
   FeaturePatch,
   FreelancerInfo,
@@ -20,6 +21,7 @@ import type {
   TeamOut,
   Tour,
   TourOptions,
+  TourRun,
   Weights,
   Project,
   ProjectSummary,
@@ -97,6 +99,16 @@ export async function request<T>(method: string, path: string, body?: unknown): 
   return data as T;
 }
 
+/** Lecture facultative : renvoie null si la ressource n'existe pas encore (404). */
+export async function orNull<T>(promise: Promise<T>): Promise<T | null> {
+  try {
+    return await promise;
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return null;
+    throw e;
+  }
+}
+
 export const api = {
   health: () => request<Health>("GET", "/health"),
   login: (email: string, password: string) => request<TokenOut>("POST", "/auth/login", { email, password }),
@@ -144,4 +156,9 @@ export const api = {
     return request<Tour>("GET", `/projects/${projectId}/tour?${q.toString()}`);
   },
   saveTour: (projectId: number, o: TourOptions) => request<Tour>("POST", `/projects/${projectId}/tour`, o),
+  tourRun: (projectId: number) => request<TourRun>("GET", `/projects/${projectId}/tour-run`),
+
+  // Module A — explication
+  explain: (projectId: number, question: string | null) =>
+    request<Explanation>("POST", `/projects/${projectId}/explain`, { question }),
 };

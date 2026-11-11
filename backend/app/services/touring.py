@@ -10,6 +10,7 @@ Les sites sont visités dans l'ordre optimal ; on compare avec l'ordre saisi par
 from collections import Counter
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.algorithms.formatting import format_ar
@@ -20,6 +21,29 @@ from app.errors import AppError, conflict
 from app.models import City, Project, TourRun
 from app.schemas import TourIn
 from app.services.project_data import load_freelancers, load_sites, load_tasks
+
+
+async def latest_tour_run(session: AsyncSession, project: Project) -> dict[str, Any]:
+    """Dernière tournée VALIDÉE (POST /tour), telle qu'enregistrée ; 404 si aucune."""
+    run = await session.scalar(
+        select(TourRun).where(TourRun.project_id == project.id).order_by(TourRun.id.desc()).limit(1)
+    )
+    if run is None:
+        raise AppError(404, "Aucune tournée validée pour ce projet.")
+    technician = None
+    if run.freelancer_id is not None:
+        found = await load_freelancers(session, [run.freelancer_id])
+        if found:
+            technician = {"id": found[0].id, "name": found[0].user.name, "city": found[0].city.name}
+    return {
+        "id": run.id,
+        "method": run.method,
+        "order": list(run.order),
+        "distance_km": run.distance_km,
+        "cost_mga": run.cost_mga,
+        "technician": technician,
+        "created_at": run.created_at.isoformat(),
+    }
 
 
 async def compute_tour(session: AsyncSession, project: Project, data: TourIn, persist: bool = True) -> dict[str, Any]:
