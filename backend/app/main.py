@@ -51,6 +51,7 @@ async def health(session: AsyncSession = Depends(get_session)) -> dict[str, str]
         "status": "ok",
         "database": "ok",
         "llm_provider": get_settings().llm_provider,
+        "environment": get_settings().environment,
     }
 
 

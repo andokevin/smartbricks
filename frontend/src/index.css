@@ -1,1 +1,113 @@
+/* Système de design SmartBricks (voir DESIGN.md) : jetons Tailwind 4 déclarés avec @theme.
+   Polices et icônes embarquées (npm) pour que la démo fonctionne hors ligne. */
 @import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "material-symbols/outlined.css";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Couleurs (palette Material 3 des maquettes) */
+  --color-surface: #f8f9ff;
+  --color-surface-dim: #d0dbed;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e6eeff;
+  --color-surface-container-high: #dee9fc;
+  --color-surface-container-highest: #d9e3f6;
+  --color-on-surface: #121c2a;
+  --color-on-surface-variant: #424751;
+  --color-inverse-surface: #27313f;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-outline: #737782;
+  --color-outline-variant: #c2c6d3;
+  --color-primary: #004287;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1e5aa8;
+  --color-on-primary-container: #bed4ff;
+  --color-primary-fixed: #d6e3ff;
+  --color-primary-fixed-dim: #aac7ff;
+  --color-on-primary-fixed: #001b3e;
+  --color-secondary: #006c49;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #6cf8bb;
+  --color-on-secondary-container: #00714d;
+  --color-secondary-fixed: #6ffbbe;
+  --color-on-secondary-fixed: #002113;
+  --color-tertiary: #613b00;
+  --color-tertiary-container: #805000;
+  --color-tertiary-fixed: #ffddb8;
+  --color-tertiary-fixed-dim: #ffb95f;
+  --color-on-tertiary-fixed: #2a1700;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Typographie : text-display, text-headline-lg… */
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-display--font-weight: 800;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--font-weight: 700;
+  --text-headline-lg-mobile: 26px;
+  --text-headline-lg-mobile--line-height: 34px;
+  --text-headline-lg-mobile--font-weight: 700;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+  --text-title-md: 16px;
+  --text-title-md--line-height: 24px;
+  --text-title-md--font-weight: 600;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 20px;
+  --text-body-sm: 12px;
+  --text-body-sm--line-height: 16px;
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 14px;
+  --text-label-sm--font-weight: 600;
+  --text-financial-display: 22px;
+  --text-financial-display--line-height: 28px;
+  --text-financial-display--font-weight: 700;
+
+  /* Espacements nommés : p-space-md, gap-gutter… */
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+  --spacing-gutter: 1.5rem;
+
+  /* Élévations (DESIGN.md) */
+  --shadow-card: 0 1px 3px rgba(31, 41, 55, 0.06), 0 1px 2px rgba(31, 41, 55, 0.04);
+  --shadow-active: 0 4px 6px -1px rgba(30, 90, 168, 0.08), 0 2px 4px -2px rgba(30, 90, 168, 0.05);
+  --shadow-overlay: 0 20px 25px -5px rgba(31, 41, 55, 0.12), 0 8px 10px -6px rgba(31, 41, 55, 0.06);
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Icônes : taille par défaut, alignement avec le texte. */
+  .material-symbols-outlined {
+    font-size: 20px;
+    line-height: 1;
+    vertical-align: middle;
+    user-select: none;
+  }
+  .icon-filled {
+    font-variation-settings: "FILL" 1;
+  }
+}
