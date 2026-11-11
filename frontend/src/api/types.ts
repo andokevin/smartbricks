@@ -73,6 +73,88 @@ export interface Project extends ProjectSummary {
   team: number[];
 }
 
+// ---------------------------------------------------------------- module A — copilote
+
+export type ReqType = "FUNCTIONAL" | "TECHNICAL" | "SECURITY" | "COMPLIANCE";
+
+export interface DraftProject {
+  title: string;
+  description: string;
+  budget_mga: number;
+  budget_hours: number | null;
+  deadline: string;
+  base_city: string | null;
+}
+
+export interface DraftFeature {
+  ref: string;
+  title: string;
+  description: string;
+  req_type: ReqType;
+  business_value: number;
+  estimated_hours: number;
+  is_mandatory: boolean;
+  depends_on: string[];
+}
+
+export interface DraftTask {
+  ref: string;
+  feature_ref: string;
+  title: string;
+  required_skill: string;
+  min_level: number;
+  estimated_hours: number;
+  depends_on: string[];
+  on_site_city: string | null;
+}
+
+export interface Draft {
+  project: DraftProject;
+  features: DraftFeature[];
+  tasks: DraftTask[];
+  sites: string[];
+}
+
+export interface ChatOut {
+  conversation_id: number;
+  reply: string;
+  ready: boolean;
+  draft: Draft | null;
+  warnings: string[];
+  provider: string;
+  fallback_reason: string | null;
+}
+
+export interface ConfirmOut {
+  project_id: number;
+  title: string;
+  features: number;
+  tasks: number;
+  sites: string[];
+  warnings: string[];
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface Conversation {
+  id: number;
+  status: "OPEN" | "DRAFT_READY" | "CONFIRMED";
+  project_id: number | null;
+  messages: ChatMessage[];
+  draft: Draft | null;
+  warnings: string[];
+}
+
+export interface City {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

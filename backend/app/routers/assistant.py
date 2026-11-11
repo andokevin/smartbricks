@@ -29,6 +29,13 @@ async def conversation(conversation_id: int, session: AsyncSession = Depends(get
     return await assistant.get_conversation(session, user, conversation_id)
 
 
+@router.get("/projects/{project_id}/conversation", response_model=ConversationOut)
+async def project_conversation(project_id: int, session: AsyncSession = Depends(get_session),
+                               user: User = Depends(get_current_user)) -> ConversationOut:
+    """Conversation à l'origine d'un projet (404 si le projet vient des données de démonstration)."""
+    return await assistant.project_conversation(session, user, project_id)
+
+
 @router.post("/confirm", response_model=ConfirmOut, status_code=201)
 async def confirm(data: ConfirmIn, session: AsyncSession = Depends(get_session),
                   user: User = Depends(get_current_user)) -> ConfirmOut:

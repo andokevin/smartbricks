@@ -94,6 +94,19 @@ async def get_conversation(session: AsyncSession, user: User, conversation_id: i
                            draft=draft, warnings=warnings)
 
 
+async def project_conversation(session: AsyncSession, user: User, project_id: int) -> ConversationOut:
+    """Conversation qui a donné naissance à un projet (404 pour un projet créé par le seed)."""
+    conv_id = await session.scalar(
+        select(AssistantConversation.id)
+        .where(AssistantConversation.project_id == project_id)
+        .order_by(AssistantConversation.id.desc())
+        .limit(1)
+    )
+    if conv_id is None:
+        raise not_found("Conversation de ce projet")
+    return await get_conversation(session, user, conv_id)
+
+
 async def confirm(session: AsyncSession, user: User, data: ConfirmIn) -> ConfirmOut:
     conv = await _conversation(session, data.conversation_id, user)
     if conv.status == "CONFIRMED":

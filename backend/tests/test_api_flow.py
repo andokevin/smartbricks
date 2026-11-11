@@ -48,6 +48,12 @@ async def test_copilote_puis_confirmation(client: AsyncClient, demo: dict[str, A
     again = await client.post(f"{API}/assistant/confirm", headers=h, json={"conversation_id": first["conversation_id"]})
     assert again.status_code == 409
 
+    # La conversation reste consultable depuis le projet.
+    conv = (await client.get(f"{API}/assistant/projects/{created['project_id']}/conversation", headers=h)).json()
+    assert conv["status"] == "CONFIRMED" and len(conv["messages"]) == 4
+    seeded = await client.get(f"{API}/assistant/projects/{demo['demo_project_id']}/conversation", headers=h)
+    assert seeded.status_code == 404
+
 
 # --------------------------------------------------------------------------- modules B à E
 

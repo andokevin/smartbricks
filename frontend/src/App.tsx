@@ -5,7 +5,9 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import { Spinner } from "./components/ui";
 import { STEPS } from "./lib/steps";
+import { CopilotPage } from "./pages/CopilotPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { ProjectCopilotPage } from "./pages/ProjectCopilotPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProjectPlaceholderPage, SimplePlaceholderPage } from "./pages/ProjectPlaceholderPage";
 
@@ -28,8 +30,9 @@ export default function App() {
     <Routes>
       <Route path="/connexion" element={<LoginPage />} />
       <Route path="/" element={<RequireAuth><DashboardPage /></RequireAuth>} />
-      <Route path="/copilote" element={<RequireAuth><SimplePlaceholderPage title="Copilote" /></RequireAuth>} />
-      {STEPS.map((s) => (
+      <Route path="/copilote" element={<RequireAuth><CopilotPage /></RequireAuth>} />
+      <Route path="/projets/:projectId/copilote" element={<RequireAuth><ProjectCopilotPage /></RequireAuth>} />
+      {STEPS.filter((s) => s.key !== "copilote").map((s) => (
         <Route
           key={s.key}
           path={`/projets/:projectId/${s.key}`}
