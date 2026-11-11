@@ -146,6 +146,61 @@ async def test_claude_reponse_tronquee_mais_comptee() -> None:
     assert len(seen) == 1  # facturée, donc comptée
 
 
+async def test_claude_refus_signale() -> None:
+    from app.llm.base import LLMError
+
+    p = ClaudeProvider(settings(), client=SimpleNamespace(messages=FakeMessages("", stop_reason="refusal")))
+    with pytest.raises(LLMError, match="refusé"):
+        await p.chat([{"role": "user", "content": "x"}], "s")
+
+
+class SequenceMessages:
+    """Client simulé qui renvoie successivement plusieurs textes (un par appel)."""
+
+    def __init__(self, texts: list[str]) -> None:
+        self.texts = texts
+        self.calls: list[dict[str, Any]] = []
+
+    async def create(self, **kwargs: Any) -> Any:
+        self.calls.append(kwargs)
+        text = self.texts[min(len(self.calls), len(self.texts)) - 1]
+        return SimpleNamespace(content=[SimpleNamespace(type="text", text=text)], stop_reason="end_turn",
+                               usage=SimpleNamespace(input_tokens=10, output_tokens=5,
+                                                     cache_creation_input_tokens=0, cache_read_input_tokens=0))
+
+
+async def test_claude_json_invalide_puis_nouvelle_tentative() -> None:
+    """Premier JSON illisible → une seule nouvelle tentative, avec l'erreur renvoyée au modèle."""
+    import json
+    from datetime import date
+
+    from app import demo_data
+    from app.services.copilot import extract_draft
+
+    good = json.dumps(demo_data.demo_draft(date(2026, 11, 16)))
+    fake = SequenceMessages(["{ceci n'est pas du JSON", good])
+    p = ClaudeProvider(settings(), client=SimpleNamespace(messages=fake))
+    history = [{"role": "user", "content": demo_data.DEMO_DESCRIPTION}]
+    result = await extract_draft(p, history, list(demo_data.SKILLS), [c[0] for c in demo_data.CITIES],  # type: ignore[arg-type]
+                                 date(2026, 11, 11))
+    assert result.attempts == 2 and len(result.draft.features) == 14
+    assert len(fake.calls) == 2
+    assert "JSON invalide" in fake.calls[1]["messages"][-1]["content"]
+
+
+async def test_enregistrement_de_la_consommation(clean_usage: None, monkeypatch: pytest.MonkeyPatch) -> None:
+    """record_usage écrit une ligne dans llm_usage avec le coût calculé à partir des prix de .env."""
+    from sqlalchemy import select
+
+    monkeypatch.setattr(llm_usage, "get_settings", lambda: settings(claude_price_input_per_mtok=1.0,
+                                                                    claude_price_output_per_mtok=5.0))
+    await llm_usage.record_usage(TokenUsage("claude", TEST_MODEL, "extract", 1_000_000, 100_000))
+    async with SessionLocal() as s:
+        row = await s.scalar(select(LlmUsage).where(LlmUsage.model == TEST_MODEL))
+    assert row is not None and row.purpose == "extract"
+    assert row.cost_usd == pytest.approx(1.0 + 0.5)
+
+
 # --------------------------------------------------------------------------- route d'administration
 
 
