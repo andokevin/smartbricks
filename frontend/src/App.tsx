@@ -13,7 +13,7 @@ import { SynthesisPage } from "./pages/SynthesisPage";
 import { TeamPage } from "./pages/TeamPage";
 import { TourPage } from "./pages/TourPage";
 import { LoginPage } from "./pages/LoginPage";
-import { SimplePlaceholderPage } from "./pages/ProjectPlaceholderPage";
+import { BenchmarkPage } from "./pages/BenchmarkPage";
 
 function RequireAuth({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
@@ -41,7 +41,7 @@ export default function App() {
       <Route path="/projets/:projectId/planning" element={<RequireAuth><PlanningPage /></RequireAuth>} />
       <Route path="/projets/:projectId/tournee" element={<RequireAuth><TourPage /></RequireAuth>} />
       <Route path="/projets/:projectId/synthese" element={<RequireAuth><SynthesisPage /></RequireAuth>} />
-      <Route path="/admin/benchmark" element={<RequireAuth><SimplePlaceholderPage title="Comparaison des méthodes" /></RequireAuth>} />
+      <Route path="/admin/benchmark" element={<RequireAuth><BenchmarkPage /></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

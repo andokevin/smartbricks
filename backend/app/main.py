@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.db import get_session
 from app.errors import AppError
-from app.routers import admin, assistant, auth, catalog, projects
+from app.routers import admin, assistant, auth, benchmark, catalog, projects
 
 # Journaux de l'application (consommation du LLM, bascule en mode mock…) visibles dans la console.
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
@@ -65,6 +65,7 @@ api.include_router(auth.router)
 api.include_router(assistant.router)
 api.include_router(projects.router)
 api.include_router(catalog.router)
+api.include_router(benchmark.router)
 api.include_router(admin.router)
 
 app.include_router(api)

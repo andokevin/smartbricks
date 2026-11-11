@@ -18,7 +18,7 @@ export function StepHeader({
 }) {
   return (
     <div className="flex flex-col justify-between gap-space-md md:flex-row md:items-end">
-      <div className="min-w-0">
+      <div className="min-w-0 md:flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-label-md text-primary">{step}</span>
           {algorithm && <AlgoTag>{algorithm}</AlgoTag>}

@@ -5,6 +5,7 @@
  * - Les erreurs de l'API ({"detail": "..."}) deviennent des ApiError avec le message en français.
  */
 import type {
+  Benchmark,
   ChatOut,
   City,
   ConfirmOut,
@@ -157,6 +158,10 @@ export const api = {
   },
   saveTour: (projectId: number, o: TourOptions) => request<Tour>("POST", `/projects/${projectId}/tour`, o),
   tourRun: (projectId: number) => request<TourRun>("GET", `/projects/${projectId}/tour-run`),
+
+  // Benchmark (administrateur)
+  benchmark: (projectId: number | null) =>
+    request<Benchmark>("GET", `/benchmark${projectId !== null ? `?project_id=${projectId}` : ""}`),
 
   // Module A — explication
   explain: (projectId: number, question: string | null) =>

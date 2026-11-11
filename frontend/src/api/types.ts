@@ -382,6 +382,69 @@ export interface Explanation {
   fallback_reason: string | null;
 }
 
+// ---------------------------------------------------------------- benchmark
+
+export interface KnapRun {
+  method: string;
+  feasible: boolean;
+  value: number;
+  cost_mga: number;
+  hours: number;
+  time_ms: number;
+  nodes: number;
+  optimal: boolean;
+  selected: number;
+  gap_pct?: number;
+}
+
+export interface Benchmark {
+  seed: number;
+  total_ms: number;
+  project: { id: number; title: string } | null;
+  knapsack: {
+    course_number: number;
+    exact_method: string;
+    approx_methods: string[];
+    threshold: string;
+    project: { exact: KnapRun; greedy: KnapRun; swaps: KnapRun } | null;
+    random: {
+      n: number; instances: number; exact_ms_avg: number; exact_ms_max: number; nodes_max: number;
+      greedy_ms_avg: number; swaps_ms_avg: number; greedy_gap_avg_pct: number; greedy_gap_max_pct: number;
+      swaps_gap_avg_pct: number; swaps_gap_max_pct: number; greedy_optimal_count: number;
+    }[];
+  };
+  csp: {
+    course_number: number;
+    exact_method: string;
+    approx_methods: string[];
+    threshold: string;
+    note: string | null;
+    project: {
+      tasks: number; team: number; lower_bound_days: number; gap_pct: number;
+      first: { makespan_days: number; time_ms: number; nodes: number };
+      optimized: { makespan_days: number; time_ms: number; nodes: number; optimal: boolean };
+    } | null;
+    random: { n: number; instances: number; first_ms_avg: number; optimized_ms_avg: number; gap_avg_pct: number; gap_max_pct: number; optimal_count: number }[];
+  };
+  tsp: {
+    course_number: number;
+    exact_method: string;
+    approx_methods: string[];
+    threshold: string;
+    project: TspRun | null;
+    national: TspRun;
+    random: { sites: number; instances: number; held_karp_ms_avg: number; two_opt_ms_avg: number; nn_gap_avg_pct: number; two_opt_gap_avg_pct: number; two_opt_gap_max_pct: number }[];
+  };
+  selector: { course_number: number; rules: { problem: string; exact: string; approx: string; threshold: string }[] };
+}
+
+export interface TspRun {
+  cities: string[];
+  held_karp: { km: number; time_ms: number };
+  nearest_neighbor: { km: number; time_ms: number; gap_pct: number };
+  two_opt: { km: number; time_ms: number; gap_pct: number };
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;
