@@ -263,6 +263,16 @@ class SolveIn(BaseModel):
     deadline: date | None = Field(default=None, description="Autre date limite à tester (non enregistrée).")
 
 
+class TaskStatusIn(BaseModel):
+    status: Literal["TODO", "IN_PROGRESS", "REVIEW", "DONE"]
+
+
+class UnavailabilityIn(BaseModel):
+    start: date
+    end: date
+    reason: str | None = Field(default=None, max_length=200)
+
+
 class DelayIn(BaseModel):
     delay_hours: int = Field(gt=0, le=400, description="Heures de travail supplémentaires sur la tâche.")
 

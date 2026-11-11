@@ -166,6 +166,22 @@ export function PlanningPage() {
 
           {schedule && (
             <>
+              {schedule.alerts && schedule.alerts.length > 0 && (
+                <div className="flex flex-col gap-space-sm rounded-2xl bg-tertiary-fixed/40 p-space-md md:flex-row md:items-start md:justify-between">
+                  <div className="flex items-start gap-space-md">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tertiary text-on-primary">
+                      <Icon name="event_busy" />
+                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-label-sm uppercase tracking-wider text-tertiary">Nouvelle indisponibilité déclarée</span>
+                      {schedule.alerts.map((a) => <p key={a} className="text-body-md text-on-surface">{a}</p>)}
+                    </div>
+                  </div>
+                  <Button icon="calendar_month" disabled={busy !== null} onClick={() => void solve("normal")} className="shrink-0">
+                    Recalculer le planning
+                  </Button>
+                </div>
+              )}
               {schedule.repair && (
                 <div className="flex items-start gap-space-md rounded-2xl bg-secondary-container/40 p-space-md">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-on-primary">

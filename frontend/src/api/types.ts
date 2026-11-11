@@ -320,6 +320,50 @@ export interface Schedule {
   site_order?: { cities: string[]; source: string; travel_days: number } | null;
   /** Présent quand ce planning est issu d'une réparation après un retard (Min-Conflict n°11). */
   repair?: Repair;
+  /** Indisponibilités déclarées après le calcul qui tombent sur une tâche (GET /schedule uniquement). */
+  alerts?: string[];
+}
+
+// ---------------------------------------------------------------- espace freelance (niveau B)
+
+export type TaskStatus = "BACKLOG" | "TODO" | "IN_PROGRESS" | "REVIEW" | "DONE" | "OVERDUE";
+
+export interface Unavailability {
+  id: number;
+  start: string;
+  end: string;
+  reason: string | null;
+}
+
+export interface MyProfile {
+  id: number;
+  name: string;
+  email: string;
+  city: string;
+  hourly_rate_mga: number;
+  hours_per_day: number;
+  rating: number;
+  on_time_rate: number;
+  skills: Record<string, number>;
+  unavailability: Unavailability[];
+}
+
+export interface MyTask {
+  id: number;
+  ref: string;
+  title: string;
+  description: string | null;
+  project: { id: number; title: string; client: string };
+  skill: string;
+  min_level: number;
+  hours: number;
+  start: string | null;
+  end: string | null;
+  status: TaskStatus;
+  on_site_city: string | null;
+  depends_on: { ref: string; title: string; status: TaskStatus; freelancer: string | null; end: string | null }[];
+  ready: boolean;
+  alerts: string[];
 }
 
 export interface Repair {

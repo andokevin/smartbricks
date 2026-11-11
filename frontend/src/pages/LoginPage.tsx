@@ -7,6 +7,7 @@ import { Button, ErrorBanner, Icon } from "../components/ui";
 
 const DEMO_ACCOUNTS = [
   { label: "Cliente — Soa (Boutique Soa)", email: "client@smartbricks.mg", password: "demo1234", icon: "storefront" },
+  { label: "Freelance — Hasina (React, Node.js)", email: "hasina@freelance.mg", password: "demo1234", icon: "engineering" },
   { label: "Administrateur", email: "admin@smartbricks.mg", password: "admin1234", icon: "admin_panel_settings" },
 ];
 

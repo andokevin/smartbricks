@@ -17,7 +17,11 @@ import type {
   FreelancerInfo,
   Health,
   DelayResult,
+  MyProfile,
+  MyTask,
   Schedule,
+  TaskStatus,
+  Unavailability,
   Matching,
   Scope,
   TeamOut,
@@ -152,6 +156,15 @@ export const api = {
     request<Schedule>("POST", `/projects/${projectId}/solve-constraints`, { scenario }),
   propagateDelay: (taskId: number, delayHours: number) =>
     request<DelayResult>("POST", `/tasks/${taskId}/propagate-delay`, { delay_hours: delayHours }),
+
+  // Espace freelance (niveau B)
+  myProfile: () => request<MyProfile>("GET", "/me/freelancer"),
+  myTasks: () => request<MyTask[]>("GET", "/me/tasks"),
+  setMyTaskStatus: (taskId: number, status: TaskStatus) =>
+    request<{ id: number; status: TaskStatus }>("PATCH", `/me/tasks/${taskId}`, { status }),
+  addUnavailability: (body: { start: string; end: string; reason: string | null }) =>
+    request<{ unavailability: Unavailability; affected_tasks: string[] }>("POST", "/me/unavailability", body),
+  deleteUnavailability: (id: number) => request<void>("DELETE", `/me/unavailability/${id}`),
 
   // Module E — tournée
   tourPreview: (projectId: number, o: TourOptions) => {

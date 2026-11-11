@@ -14,6 +14,7 @@ import { TeamPage } from "./pages/TeamPage";
 import { TourPage } from "./pages/TourPage";
 import { LoginPage } from "./pages/LoginPage";
 import { BenchmarkPage } from "./pages/BenchmarkPage";
+import { FreelancerPage } from "./pages/FreelancerPage";
 
 function RequireAuth({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth();
@@ -29,11 +30,19 @@ function RequireAuth({ children }: { children: ReactElement }) {
   return children;
 }
 
+/** Accueil selon le rôle : un freelance arrive sur son espace, un client sur son tableau de bord. */
+function Home() {
+  const { user } = useAuth();
+  if (user?.role === "FREELANCER") return <Navigate to="/espace-freelance" replace />;
+  return <DashboardPage />;
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/connexion" element={<LoginPage />} />
-      <Route path="/" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+      <Route path="/" element={<RequireAuth><Home /></RequireAuth>} />
+      <Route path="/espace-freelance" element={<RequireAuth><FreelancerPage /></RequireAuth>} />
       <Route path="/copilote" element={<RequireAuth><CopilotPage /></RequireAuth>} />
       <Route path="/projets/:projectId/copilote" element={<RequireAuth><ProjectCopilotPage /></RequireAuth>} />
       <Route path="/projets/:projectId/perimetre" element={<RequireAuth><ScopePage /></RequireAuth>} />

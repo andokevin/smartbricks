@@ -46,20 +46,31 @@ function SideNav({ project, onNavigate }: { project?: ProjectSummary; onNavigate
     <div className="flex h-full flex-col justify-between">
       <div className="flex flex-col">
         <Brand />
-        <nav className="flex flex-col gap-space-xs px-space-sm">
-          <NavLink to="/" end onClick={onNavigate} className={({ isActive }) => cx(linkBase, isActive ? active : idle)}>
-            <span className="flex items-center gap-space-sm">
-              <Icon name="dashboard" />
-              <span className="text-body-md">Tableau de bord</span>
-            </span>
-          </NavLink>
-          <NavLink to="/copilote" onClick={onNavigate} className={({ isActive }) => cx(linkBase, isActive ? active : idle)}>
-            <span className="flex items-center gap-space-sm">
-              <Icon name="add_circle" />
-              <span className="text-body-md">Nouveau projet</span>
-            </span>
-          </NavLink>
-        </nav>
+        {user?.role === "FREELANCER" ? (
+          <nav className="flex flex-col gap-space-xs px-space-sm">
+            <NavLink to="/espace-freelance" onClick={onNavigate} className={({ isActive }) => cx(linkBase, isActive ? active : idle)}>
+              <span className="flex items-center gap-space-sm">
+                <Icon name="assignment_ind" />
+                <span className="text-body-md">Mes tâches</span>
+              </span>
+            </NavLink>
+          </nav>
+        ) : (
+          <nav className="flex flex-col gap-space-xs px-space-sm">
+            <NavLink to="/" end onClick={onNavigate} className={({ isActive }) => cx(linkBase, isActive ? active : idle)}>
+              <span className="flex items-center gap-space-sm">
+                <Icon name="dashboard" />
+                <span className="text-body-md">Tableau de bord</span>
+              </span>
+            </NavLink>
+            <NavLink to="/copilote" onClick={onNavigate} className={({ isActive }) => cx(linkBase, isActive ? active : idle)}>
+              <span className="flex items-center gap-space-sm">
+                <Icon name="add_circle" />
+                <span className="text-body-md">Nouveau projet</span>
+              </span>
+            </NavLink>
+          </nav>
+        )}
 
         {project && (
           <>

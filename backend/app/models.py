@@ -192,6 +192,7 @@ class Project(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     base_city: Mapped[City | None] = relationship()
+    client: Mapped[User] = relationship()
     features: Mapped[list[Feature]] = relationship(
         back_populates="project", cascade="all, delete-orphan", order_by="Feature.id"
     )
@@ -268,6 +269,7 @@ class Task(Base):
     feature: Mapped[Feature] = relationship()
     required_skill: Mapped[Skill] = relationship()
     on_site_city: Mapped[City | None] = relationship()
+    assigned_freelancer: Mapped[FreelancerProfile | None] = relationship()
 
 
 class TaskDependency(Base):

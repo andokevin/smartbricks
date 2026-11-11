@@ -16,8 +16,11 @@ from app.algorithms.matching import PRESETS, evaluate, weighted_ranking
 from app.algorithms.min_conflicts import lengthen, repair_schedule
 from app.algorithms.solver_selector import solve_schedule_auto
 from app.errors import AppError, conflict, not_found
-from app.models import Project, ProjectStatus, ScheduleRun, Task, TaskStatus, TourRun, User
+from sqlalchemy.orm import selectinload
+
+from app.models import FreelancerProfile, Project, ProjectStatus, Role, ScheduleRun, Task, TaskStatus, TourRun, User
 from app.schemas import DelayIn, SolveIn, TourIn
+from app.services.freelancer_space import schedule_alerts
 from app.services.matching_service import get_team
 from app.services.touring import compute_tour
 from app.services.project_data import (
@@ -53,7 +56,9 @@ async def latest_schedule(session: AsyncSession, project: Project) -> dict[str, 
     )
     if run is None:
         raise AppError(404, "Aucun planning calculé pour ce projet : lancez-le (POST /projects/{id}/solve-constraints).")
-    return {**run.report, "run_id": run.id}
+    # Indisponibilités déclarées APRÈS le calcul (espace freelance) : recalculées à chaque lecture.
+    alerts = await schedule_alerts(session, run.report.get("assignments", []))
+    return {**run.report, "run_id": run.id, "alerts": alerts}
 
 
 class _Inputs:
@@ -156,7 +161,17 @@ async def propagate_delay(session: AsyncSession, user: User, task_id: int, data:
     task = await session.get(Task, task_id)
     if task is None:
         raise not_found("Tâche")
-    project = await get_project(session, task.project_id, user)
+    if user.role == Role.FREELANCER:
+        # Espace freelance : le freelance peut signaler un retard sur une tâche qui LUI est confiée.
+        profile = await session.scalar(select(FreelancerProfile).where(FreelancerProfile.user_id == user.id))
+        if profile is None or task.assigned_freelancer_id != profile.id:
+            raise AppError(403, "Cette tâche ne vous est pas confiée.")
+        project = await session.scalar(
+            select(Project).where(Project.id == task.project_id).options(selectinload(Project.base_city))
+        )
+        assert project is not None
+    else:
+        project = await get_project(session, task.project_id, user)
     previous = await latest_schedule(session, project)  # 404 s'il n'y a pas encore de planning
     inp = await _load_inputs(session, project)
     if task_id not in inp.by_task:
