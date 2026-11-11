@@ -3,6 +3,7 @@
  * - Barres : tâches planifiées par le CSP (n°3), couleur = freelance (ordre fixe, palette vérifiée).
  * - Hachures : indisponibilités du freelance (la tâche est mise en pause, jamais planifiée dessus).
  * - Contour foncé : tâches du chemin critique. Trait rouge pointillé : date limite.
+ * - Flèches (niveau B) : dépendances entre tâches, plus foncées sur le chemin critique.
  */
 import type { Assignment, FreelancerInfo, Schedule } from "../../api/types";
 import { datesBetween, isMonday, maxIso, workingDays } from "../../lib/calendar";
@@ -10,6 +11,9 @@ import { formatShortDate } from "../../lib/format";
 import { cx, Icon } from "../ui";
 
 const DAY = 28; // largeur d'un jour ouvré, en pixels
+const HEADER = 49; // hauteur de l'en-tête (h-12 + bordure)
+const ROW = 45; // hauteur d'une ligne (h-11 + bordure)
+const BAR_CENTER = 22; // centre vertical d'une barre dans sa ligne (top-1.5 + h-8 / 2) ; la barre commence à 6 px
 // Colonne des noms : plus étroite sur téléphone.
 const LABEL = typeof window !== "undefined" && window.innerWidth < 640 ? 130 : 190;
 
@@ -29,7 +33,15 @@ export function colorFor(index: number) {
   return PALETTE[index % PALETTE.length] as { bg: string; text: string };
 }
 
-export function Gantt({ schedule, freelancers }: { schedule: Schedule; freelancers: Map<number, FreelancerInfo> }) {
+export function Gantt({
+  schedule,
+  freelancers,
+  showDependencies = true,
+}: {
+  schedule: Schedule;
+  freelancers: Map<number, FreelancerInfo>;
+  showDependencies?: boolean;
+}) {
   const days = workingDays(schedule.start_date, maxIso(schedule.deadline, schedule.end_date));
   const index = new Map(days.map((d, i) => [d, i]));
   const critical = new Set(schedule.critical_path);
@@ -52,6 +64,30 @@ export function Gantt({ schedule, freelancers }: { schedule: Schedule; freelance
     const tasks = schedule.assignments.filter((a) => a.freelancer_id === member.id);
     return { member, color: colorFor(i), off, tasks, hours: tasks.reduce((s, t) => s + t.hours, 0) };
   });
+
+  // Position verticale de chaque tâche (centre de sa barre), pour tracer les flèches.
+  const rowOf = new Map<string, number>();
+  rows.forEach((r, i) => r.tasks.forEach((t) => rowOf.set(t.ref, i)));
+  const byRef = new Map(schedule.assignments.map((a) => [a.ref, a]));
+  const arrows: { key: string; d: string; critical: boolean }[] = [];
+  for (const succ of schedule.assignments) {
+    for (const ref of succ.depends_on) {
+      const pred = byRef.get(ref);
+      if (!pred) continue;
+      const x1 = ((index.get(pred.end) ?? 0) + 1) * DAY - 1; // bord droit de la tâche préalable
+      const x2 = (index.get(succ.start) ?? 0) * DAY + 1; // bord gauche de la tâche suivante
+      const y1 = HEADER + (rowOf.get(pred.ref) ?? 0) * ROW + BAR_CENTER;
+      const band = HEADER + (rowOf.get(succ.ref) ?? 0) * ROW + 2; // bande libre au-dessus des barres de la ligne cible
+      // Tracé : sortie à droite de la tâche préalable, montée dans la bande libre de la ligne cible,
+      // horizontale au-dessus des barres (jamais à travers leur texte), puis descente sur le début de la tâche suivante.
+      const xm = x2 - x1 >= 12 ? x1 + 6 : (x1 + x2) / 2;
+      arrows.push({
+        key: `${ref}-${succ.ref}`,
+        d: `M${x1},${y1} H${xm} V${band} H${x2 + 5} V${band + 5}`,
+        critical: critical.has(ref) && critical.has(succ.ref),
+      });
+    }
+  }
 
   function bar(a: Assignment, color: { bg: string; text: string }) {
     const s = index.get(a.start) ?? 0;
@@ -129,6 +165,37 @@ export function Gantt({ schedule, freelancers }: { schedule: Schedule; freelance
             </div>
           </div>
         ))}
+
+        {/* Flèches de dépendance (niveau B) : de la fin de la tâche préalable au début de celle qui l'attend. */}
+        {showDependencies && (
+          <svg
+            className="pointer-events-none absolute top-0 z-10"
+            style={{ left: LABEL }}
+            width={width}
+            height={HEADER + rows.length * ROW}
+            aria-hidden="true"
+          >
+            <defs>
+              <marker id="gantt-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L8,4 L0,8 z" fill="#424751" />
+              </marker>
+              <marker id="gantt-arrow-critical" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L8,4 L0,8 z" fill="#121c2a" />
+              </marker>
+            </defs>
+            {arrows.map((a) => (
+              <path
+                key={a.key}
+                d={a.d}
+                fill="none"
+                stroke={a.critical ? "#121c2a" : "#424751"}
+                strokeWidth={a.critical ? 1.8 : 1.2}
+                strokeOpacity={a.critical ? 0.9 : 0.6}
+                markerEnd={`url(#${a.critical ? "gantt-arrow-critical" : "gantt-arrow"})`}
+              />
+            ))}
+          </svg>
+        )}
 
         {/* Date limite */}
         {deadlineIdx >= 0 && (

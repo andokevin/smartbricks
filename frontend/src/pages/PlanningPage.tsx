@@ -38,6 +38,7 @@ export function PlanningPage() {
   const [busy, setBusy] = useState<"normal" | "impossible" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [test, setTest] = useState<Schedule | null>(null);
+  const [showDeps, setShowDeps] = useState(true);
 
   const data = useAsync(async () => {
     const [project, freelancers] = await Promise.all([api.project(projectId), api.freelancers()]);
@@ -217,7 +218,7 @@ export function PlanningPage() {
                       </div>
                     </div>
                   </div>
-                  <Gantt schedule={schedule} freelancers={data.data!.freelancers} />
+                  <Gantt schedule={schedule} freelancers={data.data!.freelancers} showDependencies={showDeps} />
                   <div className="flex flex-wrap items-center gap-x-space-md gap-y-1 rounded-xl bg-surface-container-low p-space-sm text-body-sm text-on-surface-variant">
                     <span className="flex items-center gap-1.5"><span className="h-3 w-5 rounded-sm outline outline-2 outline-inverse-surface" /> Chemin critique</span>
                     <span className="flex items-center gap-1.5">
@@ -226,6 +227,10 @@ export function PlanningPage() {
                     </span>
                     <span className="flex items-center gap-1.5"><Icon name="pin_drop" className="text-[16px]" /> Tâche sur site</span>
                     <span className="flex items-center gap-1.5"><span className="h-3 border-l-2 border-dashed border-error" /> Date limite</span>
+                    <label className="flex cursor-pointer items-center gap-1.5">
+                      <input type="checkbox" checked={showDeps} onChange={(e) => setShowDeps(e.target.checked)} className="h-4 w-4 accent-primary" />
+                      Flèches de dépendance
+                    </label>
                     <span className="text-outline">Survolez une barre pour le détail.</span>
                   </div>
 
