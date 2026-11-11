@@ -1,290 +1,364 @@
 # 07 — Présentation orale (15 à 20 minutes)
 
-Quinze diapositives, dans l'ordre imposé. Pour chacune : le titre, le contenu affiché (court), un schéma si utile, et le **script oral complet**. Durée indiquée entre crochets ; total ≈ 18 minutes, dont 4 de démonstration.
+Vingt-quatre diapositives en quatre parties. Pour chacune : le titre, le contenu affiché (court) et le **script oral complet**. La durée est indiquée entre crochets ; le total fait environ 19 minutes, dont 4 de démonstration.
 
-Tous les chiffres viennent de l'exécution réelle (projet de démonstration « Boutique Soa », données reproductibles) : `02_PLAN_DE_TEST.md` pour le parcours, `docs/benchmark_resultats.json` pour les mesures. Les temps dépendent de la machine ; les valeurs, coûts et distances non.
+**Origine des chiffres** : tous viennent de l'exécution réelle.
+- Le projet de démonstration « Boutique Soa » (données reproductibles, graine 42), lu par l'API.
+- `docs/benchmark_resultats.json`, remesuré après le niveau B.
+- `pytest` : 153 tests passés.
+- Le temps de calcul dépend de la machine ; les valeurs, les coûts, les distances et les nombres de nœuds, non.
 
-Le fichier `SmartBricks_presentation.pptx` (même dossier) reprend ces diapositives ; le script est dans les notes de l'orateur.
+Le fichier `SmartBricks_presentation.pptx` (même dossier) est généré à partir de ce document par `build_slides.py` : le script de chaque diapositive est copié dans les notes de l'orateur.
 
 ---
 
-## Diapositive 1 — Couverture [0:30]
+# Partie 1 — Le projet et la problématique
+
+## Diapositive 1 — Couverture [0:20]
 
 **Affiché**
 - SmartBricks
-- Du besoin flou au projet réaliste
+- Du besoin flou au projet informatique réaliste
 - Copilote IA + algorithmes d'optimisation
-- Nom, formation, date
+- Auteur, formation, novembre 2026
 
 **Script**
-> Bonjour. Je vais vous présenter SmartBricks, une plateforme qui aide un client non technique à transformer une idée floue en un vrai projet informatique : un périmètre chiffré, une équipe de freelances, un planning qui tient, et une tournée pour les interventions sur site à Madagascar. Le principe, vous allez le voir, tient en une phrase : une IA pour dialoguer, des algorithmes pour décider.
+> Bonjour à toutes et à tous. Je vais vous présenter SmartBricks, une plateforme qui transforme l'idée d'un client non technique en un vrai projet informatique : ce qu'on livre, avec qui, quand, et pour combien.
 
 ---
 
-## Diapositive 2 — Vision [0:45]
+## Diapositive 2 — Pourquoi ce projet [0:40]
 
 **Affiché**
-- Oser rêver, réaliser son imagination
-- La technologie au service de l'humain
-- Un commerçant doit pouvoir lancer son projet numérique sans être informaticien
+- « Oser rêver, réaliser son imagination pour améliorer le quotidien. »
+- Commerçants et PME : des idées, pas d'équipe technique
+- Freelances : des compétences dispersées, des missions incertaines
+- Agences en région : Tana, Antsirabe, Toamasina, Fianarantsoa
 
 **Script**
-> Notre point de départ est simple. Beaucoup de commerçants et d'associations à Madagascar ont des idées : vendre en ligne, suivre leurs commandes, relier leurs agences. Mais entre l'idée et le projet, il y a un mur : il faut savoir découper, chiffrer, recruter, planifier. SmartBricks veut abattre ce mur. Oser rêver, et faire en sorte que la technologie serve l'humain, pas l'inverse.
+> Le point de départ, c'est une conviction : oser rêver, et faire en sorte que la technologie serve l'humain. À Madagascar, beaucoup de commerçants et de PME ont des idées numériques : vendre en ligne, suivre leurs commandes, relier leurs agences en région. Mais ils n'ont pas d'équipe technique. En face, il y a des freelances compétents, répartis dans plusieurs villes, qui cherchent des missions claires. SmartBricks veut relier les deux.
 
 ---
 
-## Diapositive 3 — Le problème [1:00]
+## Diapositive 3 — Présentation du projet [0:45]
 
 **Affiché**
-- « Je veux un site avec paiement MVola, une appli, et le réseau dans mes 4 agences. 6 millions d'Ariary, 8 semaines. »
-- 14 fonctionnalités rêvées = 15,2 M Ar pour 6 M de budget
-- 25 freelances, 12 villes, des congés, des dépendances
+- SmartBricks transforme une idée en projet réalisable : périmètre, équipe, planning, tournée.
+- Le client : décrit son besoin et décide
+- Le copilote IA : comprend et explique
+- Les algorithmes : calculent et garantissent
 
 **Script**
-> Prenons Boutique Soa, notre cliente de démonstration. Elle dit : « Je veux un site e-commerce avec paiement MVola, une application mobile de suivi, et le réseau dans mes quatre agences. Six millions d'Ariary, huit semaines. » Une fois découpé, son rêve représente quatorze fonctionnalités, soit quinze virgule deux millions d'Ariary pour six de budget. En face, vingt-cinq freelances dans cinq villes, chacun avec ses compétences, son tarif, ses congés. Et quatre agences à visiter physiquement. Aucun humain ne peut faire tous ces arbitrages de tête de façon optimale. Et un modèle de langage seul non plus : il invente des chiffres.
+> SmartBricks tient en une phrase : on part d'une idée exprimée avec des mots simples, et on arrive à un projet réalisable, avec un périmètre chiffré, une équipe, un planning et une tournée sur le terrain. Trois acteurs y participent. Le client décrit son besoin et garde la décision. Le copilote, un modèle de langage, comprend ce qu'il dit et lui explique les résultats. Et les algorithmes du cours font tous les calculs. La règle est stricte : l'IA ne calcule jamais un budget, un planning ou une tournée.
 
 ---
 
-## Diapositive 4 — Cinq questions, cinq problèmes [1:15]
+## Diapositive 4 — La problématique [0:40]
 
 **Affiché**
-
-| Question du client | Problème | N° |
-|---|---|---|
-| Que veut-il vraiment ? | Extraction et dialogue | 33 |
-| Que livrer d'abord ? | Sac à dos multidimensionnel | 29 |
-| Avec qui ? | Agrégation pondérée + Pareto | 22, 21 |
-| Quand ? | Satisfaction de contraintes | 3 |
-| Dans quel ordre visiter les agences ? | Voyageur de commerce | 30 |
+- « Comment transformer l'idée d'un client non technique en projet réalisable, en garantissant le respect de son budget, de ses délais et des contraintes de l'équipe ? »
 
 **Script**
-> Le cœur du projet, c'est d'avoir reconnu que le besoin du client cache cinq questions, et que chacune est un problème classique du cours. « Que veut-il vraiment ? » : c'est de l'extraction d'information, confiée à une IA, numéro 33. « Que livrer d'abord avec mon budget ? » : c'est un sac à dos à deux dimensions, Ariary et heures, numéro 29. « Avec qui ? » : un choix multicritère, résolu par agrégation pondérée, numéro 22, et par optimisation de Pareto, numéro 21. « Quand ? » : un problème de satisfaction de contraintes, numéro 3. Et « dans quel ordre visiter les agences ? » : le voyageur de commerce, numéro 30. Chaque étape a donc un algorithme précis, que je peux justifier.
+> D'où la question centrale de mon travail : comment transformer l'idée d'un client non technique en projet réalisable, en garantissant le respect de son budget, de ses délais et des contraintes de l'équipe ? J'insiste sur le mot « garantissant » : il ne s'agit pas de proposer une estimation plausible, mais un plan dont on peut prouver qu'il respecte les contraintes.
 
 ---
 
-## Diapositive 5 — La solution : l'enchaînement [1:00]
-
-**Affiché** (schéma en 6 étapes)
-
-```mermaid
-flowchart LR
-    A[1 Copilote<br/>n°33] --> B[2 Périmètre<br/>n°29] --> C[3 Équipe<br/>n°22 · n°21] --> D[4 Planning<br/>n°3] --> E[5 Tournée<br/>n°30] --> F[6 Explication<br/>n°33]
-```
-
-**Script**
-> Voici l'enchaînement. Le client parle au copilote, qui pose des questions puis produit un brouillon structuré. Le client le corrige. Le sac à dos choisit le sprint 1. Le matching propose une équipe. Le CSP construit le planning. Le voyageur de commerce optimise la tournée. Et pour finir, le copilote explique le tout en français simple. Chaque étape consomme le résultat de la précédente. Et surtout, la règle d'or : l'IA ne calcule jamais un budget, un planning ou une tournée. Elle parle ; les algorithmes décident.
-
----
-
-## Diapositive 6 — Copilote et sélecteur de méthode (n°33) [1:30]
+## Diapositive 5 — Les difficultés concrètes [0:45]
 
 **Affiché**
-- Une question à la fois, puis un brouillon JSON validé
-- Contrôles sans IA : compétences, villes, cycles (Kahn), heures > 0
-- Explication vérifiée : tout nombre absent des données ⇒ texte remplacé
-- Sélecteur : exact si ≤ 40 fonctionnalités, ≤ 12 sites ; CSP limité à 3 s
-- Mode simulé : démonstration sans clé ni réseau
+- Côté client : ne sait pas découper ni chiffrer ; budget limité et délai fixé ; ne sait pas qui recruter
+- Côté freelance : disponibilités et compétences ignorées ; planning irréaliste, déplacements mal organisés
 
 **Script**
-> Premier algorithme, le numéro 33, sous deux formes. D'abord le copilote. Il pose une question à la fois, en français simple, jusqu'à connaître le budget, la date, la ville et les fonctionnalités clés. Puis il produit un JSON validé par un schéma. Mais on ne lui fait pas confiance : un programme vérifie que les compétences et les villes existent, accepte « Tamatave » pour Toamasina, et détecte les dépendances circulaires avec le tri topologique de Kahn. S'il y a un cycle, il retire la dépendance la moins justifiée et le signale. À la fin, quand le copilote explique le plan, chaque nombre de son texte est comparé aux résultats calculés. Un seul nombre inventé, et le texte est remplacé par une explication générée à partir des données.
-> Deuxième forme, le sélecteur de méthode, une hyper-heuristique : il ne cherche pas une solution, il choisit la méthode. Jusqu'à quarante fonctionnalités, le sac à dos est exact ; jusqu'à douze sites, la tournée est exacte ; le planning dispose de trois secondes. Et il affiche toujours sa raison au client.
-> Enfin, la démonstration tourne avec un fournisseur simulé : aucune clé, aucun réseau, résultats reproductibles. Claude ou Gemini se branchent par une variable d'environnement, avec un plafond de dépense de quatre dollars.
+> Concrètement, les difficultés sont des deux côtés. Le client ne sait pas découper son idée en fonctionnalités ni la chiffrer ; il a un budget limité et une date imposée ; et il ne sait pas qui recruter. Prenons notre cliente de démonstration, Boutique Soa : son rêve représente 14 fonctionnalités, soit 15,2 millions d'Ariary, pour 6 millions de budget. Côté freelance, on ignore souvent ses disponibilités et son niveau réel, on lui impose des plannings irréalistes, et quand il faut intervenir dans plusieurs agences, les déplacements sont mal organisés.
 
 ---
 
-## Diapositive 7 — Le sac à dos multidimensionnel (n°29) [2:00]
+# Partie 2 — Les algorithmes
+
+## Diapositive 6 — Vue d'ensemble des algorithmes [1:00]
+
+**Affiché** (tableau)
+
+| N° | Algorithme | Problème résolu | Fonctionnalité |
+|---|---|---|---|
+| 33 | IA : copilote + sélecteur | Comprendre le besoin, choisir la méthode | Copilote, partout |
+| 29 | Sac à dos multidimensionnel | Que livrer sous budget et heures ? | Périmètre |
+| 22 | Agrégation pondérée | Classer selon les priorités | Équipe |
+| 21 | Optimisation de Pareto | Montrer les meilleurs compromis | Équipe |
+| 3 | Satisfaction de contraintes | Qui fait quoi, et quand ? | Planning |
+| 30 | Voyageur de commerce | Dans quel ordre visiter les agences ? | Tournée |
+| 11 | Min-Conflict | Réparer après un retard | Planning |
+
+**Script**
+> Voici la vue d'ensemble. Chaque question du client correspond à un problème classique du cours, et donc à un algorithme précis. Le numéro 33, l'IA, comprend le besoin et choisit la méthode de calcul. Le sac à dos multidimensionnel, numéro 29, choisit ce qu'on livre. L'agrégation pondérée, numéro 22, et l'optimisation de Pareto, numéro 21, aident à choisir l'équipe. La satisfaction de contraintes, numéro 3, construit le planning. Le voyageur de commerce, numéro 30, ordonne les visites. Et Min-Conflict, numéro 11, répare le planning quand une tâche prend du retard.
+
+---
+
+## Diapositive 7 — L'enchaînement [0:40]
+
+**Affiché** : six étapes, chacune avec son numéro.
+Copilote (33) → Périmètre (29) → Équipe (22 · 21) → Planning (3) → Tournée (30) → Explication (33)
+
+**Script**
+> Les étapes s'enchaînent dans cet ordre. Le copilote produit un brouillon que le client corrige. Le sac à dos choisit le sprint 1. Le matching propose l'équipe. Le CSP construit le planning. Le voyageur de commerce optimise la tournée. Et le copilote revient à la fin pour expliquer le tout. Chaque étape consomme le résultat de la précédente. Voyons maintenant chaque algorithme, à chaque fois en deux temps : pourquoi et comment, puis ce qu'il fait réellement dans SmartBricks.
+
+---
+
+## Diapositive 8 — Copilote et sélecteur (n°33) : pourquoi et comment [0:50]
 
 **Affiché**
-- max Σ valeur — sous Σ coût ≤ 6 000 000 Ar et Σ heures ≤ 200 h, obligatoires, dépendances
-- Retenues : Catalogue, Panier, Comptes, Réseau ⇒ 5 541 000 Ar (92 %), 136 h (68 %)
+- Pourquoi : seul un modèle de langage comprend le français courant ; mais il calcule mal, donc il ne décide rien.
+- Comment : 1 Dialogue (une question à la fois) → 2 Extraction (JSON au schéma imposé) → 3 Contrôles sans IA (compétences, villes, cycles) → 4 Explication (chaque chiffre vérifié)
+- Sélecteur : exact si la taille le permet, sinon approché, et il dit pourquoi.
+
+**Script**
+> Pourquoi une IA ? Parce que le client parle en langage courant, et qu'aucun formulaire technique ne remplacerait un dialogue. Mais un modèle de langage n'est ni exact ni reproductible : il peut inventer un total. Je l'utilise donc en quatre temps encadrés. Un, il dialogue et pose une seule question à la fois. Deux, il produit un JSON qui doit respecter un schéma imposé. Trois, un programme vérifie ce JSON sans IA : les compétences et les villes existent, et le tri topologique de Kahn détecte les dépendances circulaires. Quatre, quand il explique le plan, chaque nombre de son texte est comparé aux résultats ; un seul chiffre inventé, et le texte est remplacé. Le numéro 33 a une deuxième facette, le sélecteur de méthode : une hyper-heuristique qui choisit l'algorithme exact quand la taille le permet, sinon une méthode approchée, et qui affiche sa raison.
+
+---
+
+## Diapositive 9 — Copilote et sélecteur (n°33) : dans SmartBricks [0:50]
+
+**Affiché**
+- Reçoit : « Boutique Soa veut un site e-commerce… 6 000 000 Ar, 8 semaines. »
+- Renvoie : brouillon de 14 fonctionnalités, 30 tâches, 4 sites (mode simulé)
+- Avec Claude (essai réel) : 2 échanges, 8 fonctionnalités, 18 tâches, ≈ 0,002 $
+- Sélecteur : ≤ 40 fonctionnalités → exact ; ≤ 12 sites → Held-Karp ; planning : 3 s au plus
+
+**Script**
+> Dans l'application, le copilote reçoit le texte libre du client, par exemple celui de Boutique Soa. En mode simulé, qui sert pour la démonstration sans réseau, il renvoie un brouillon de 14 fonctionnalités, 30 tâches et 4 sites. Avec Claude, que j'ai testé pour de vrai, il a suffi de deux échanges pour obtenir un brouillon de 8 fonctionnalités et 18 tâches, pour environ deux millièmes de dollar ; chaque appel est compté, avec un plafond de 4 dollars. Le sélecteur, lui, décide de la méthode : jusqu'à 40 fonctionnalités, le sac à dos est exact ; jusqu'à 12 sites, la tournée est exacte ; le planning a trois secondes au plus. Pour Boutique Soa, 14 fonctionnalités : la méthode exacte est choisie.
+
+---
+
+## Diapositive 10 — Sac à dos multidimensionnel (n°29) : pourquoi et comment [0:50]
+
+**Affiché**
+- Pourquoi : choisir des fonctionnalités sous deux limites (Ariary et heures), avec obligatoires et dépendances.
+- Comment : 1 Trier par densité → 2 Brancher : inclure ou exclure, avec les dépendances → 3 Borner : minimum des deux sacs fractionnaires → 4 Élaguer si la borne ne bat pas le meilleur
+- Plutôt que la programmation dynamique : plus de 10 milliards de cases.
+
+**Script**
+> Le choix du sprint 1 est exactement un sac à dos : on maximise la valeur métier sous deux capacités à la fois, le budget en Ariary et les heures, avec des fonctionnalités obligatoires et des dépendances ; pas de paiement sans panier. Je le résous par séparation et évaluation. Un, on trie les fonctionnalités par densité. Deux, on branche : inclure ou exclure, en emportant les dépendances. Trois, on calcule une borne : le sac à dos fractionnaire sur le budget seul, celui sur les heures seules, et on garde le minimum ; chacun est une relaxation, donc une borne valide. Quatre, si la borne ne bat pas la meilleure solution connue, on coupe la branche. Pourquoi pas la programmation dynamique ? Avec un budget en Ariary de six millions et deux cents heures, le tableau dépasserait dix milliards de cases.
+
+---
+
+## Diapositive 11 — Sac à dos (n°29) : dans SmartBricks [0:50]
+
+**Affiché**
+- Retenues : Catalogue, Panier, Comptes, Réseau
+- Budget 5 541 000 / 6 000 000 Ar (92 %) — Heures 136 / 200 h (68 %)
 - MVola écarté : il manque 464 000 Ar
 - Et si +600 000 Ar ? ⇒ + Paiement MVola (valeur +80)
-- Séparation et évaluation : 18 nœuds, optimum prouvé
-
-(Tableau retenues / écartées, jauges budget et heures, encart « Et si ? ».)
+- 18 nœuds au lieu de 16 384 — optimum prouvé
 
 **Script**
-> Le sac à dos. On maximise la valeur métier, sous deux capacités à la fois : le budget en Ariary et les heures. On ajoute deux règles du monde réel : les fonctionnalités obligatoires, et les dépendances, car pas de paiement sans panier, ni de panier sans catalogue.
-> Je le résous par séparation et évaluation. À chaque nœud, on inclut ou on exclut une fonctionnalité. Inclure, c'est aussi prendre ce dont elle dépend ; exclure, c'est aussi écarter ce qui dépend d'elle. On évalue chaque branche par une borne : le sac à dos fractionnaire sur le budget seul, et celui sur les heures seules. Chacun est une relaxation, donc une borne valide, et leur minimum aussi. Si la borne ne bat pas la meilleure solution connue, on coupe la branche.
-> Exemple réel : les trois obligatoires, catalogue, comptes et réseau, coûtent 4 446 000 Ariary. Il reste 1 554 000. Le panier, à 1 095 000, entre. Il reste 459 000 ; le paiement MVola en demande 923 000 : il manque 464 000 Ariary, et c'est exactement ce que l'écran dit au client.
-> Résultat : 5 541 000 Ariary, 92 % du budget, en 18 nœuds au lieu de 16 384 combinaisons. Et l'encart « et si ? » relance le calcul avec dix pour cent de plus : avec 600 000 Ariary de plus, vous ajoutez le paiement MVola. C'est une phrase qu'un client comprend et peut négocier.
+> Dans SmartBricks, c'est l'écran Périmètre. Il reçoit les 14 fonctionnalités avec leur valeur, leurs heures et leur coût, plus les deux capacités. Pour Boutique Soa, il retient le catalogue, le panier, les comptes clients et le réseau des agences : 5 541 000 Ariary, soit 92 % du budget, et 136 heures sur 200. Pour chaque fonctionnalité écartée, il renvoie une raison chiffrée : il manque 464 000 Ariary pour le paiement MVola. Et l'encart « et si ? » relance le calcul : avec 600 000 Ariary de plus, on ajoute MVola ; avec 1 500 000, on ajoute aussi la protection des données et Orange Money. Le tout en 18 nœuds, au lieu des 16 384 combinaisons possibles, avec un optimum prouvé.
 
 ---
 
-## Diapositive 8 — Le matching (n°22 et n°21) [2:00]
+## Diapositive 12 — Agrégation pondérée (n°22) et Pareto (n°21) : pourquoi et comment [0:50]
 
 **Affiché**
-- Score = Σ poids × critère normalisé (coût, rapidité, qualité, disponibilité, couverture)
-- Fronts de Pareto : personne ne fait mieux sur tous les critères à la fois
-- Meilleur compromis = le plus proche du point idéal
-- Exemple réel sur 4 des 23 candidats :
-
-| | Coût | Rapidité | Qualité | Front |
-|---|---|---|---|---|
-| Rado | 188 000 Ar | 2,0 j | 3,57 | 1 |
-| Nirina | 528 000 Ar | 2,0 j | 4,01 | 1 |
-| Toky | 1 584 000 Ar | 4,8 j | 4,83 | 1 ★ compromis |
-| Rivo | 4 324 000 Ar | 21,0 j | 2,70 | 5 |
-
-(Nuage coût × durée, front relié, étoile sur le meilleur compromis.)
+- Pourquoi : le moins cher n'est ni le plus rapide ni le mieux noté ; il faut arbitrer.
+- Comment : 1 Mesurer 5 critères → 2 Normaliser entre 0 et 1 → 3 Pondérer : score = Σ poids × critère (n°22) → 4 Comparer : fronts de Pareto, sans poids (n°21)
+- Le score suit les priorités du client ; Pareto montre tous les bons compromis.
 
 **Script**
-> Pour l'équipe, cinq critères calculés pour ce projet : le coût des tâches que le freelance sait faire, le nombre de jours qu'il lui faudrait, sa qualité (note pondérée par sa ponctualité), sa disponibilité et sa couverture des tâches.
-> Première méthode, l'agrégation pondérée, numéro 22. On normalise chaque critère entre zéro et un, en inversant ceux qu'on veut minimiser, puis on fait une somme pondérée. Le client règle les poids avec des curseurs. En « Économique », Rado est premier ; en « Rapide », c'est Nirina. L'écran montre la contribution de chaque critère, donc le client comprend pourquoi.
-> Mais un score dépend des poids. D'où la deuxième méthode, Pareto, numéro 21. Un freelance en domine un autre s'il est au moins aussi bon partout, et strictement meilleur quelque part. Le premier front, ce sont ceux que personne ne domine. Regardez : Rado est le moins cher, Nirina aussi rapide mais mieux noté, Toky le mieux noté. Aucun ne domine les autres : ils sont tous les trois sur le front 1. Rivo, lui, coûte 4,3 millions pour 21 jours avec une note de 2,7 : il est dominé, au front 5. Le meilleur compromis, c'est le point du front le plus proche de l'idéal : ici Toky.
-> Enfin, l'équipe suggérée prend, compétence par compétence, le meilleur score capable, puis vérifie que la charge tient avant la date limite. Pour Boutique Soa : quatre personnes.
+> Pour l'équipe, aucun freelance n'est meilleur partout : le moins cher n'est pas le plus rapide ni le mieux noté. J'utilise donc deux méthodes complémentaires. D'abord, on mesure cinq critères pour ce projet : coût, rapidité, qualité, disponibilité et couverture des tâches. On les ramène entre zéro et un, en inversant ceux qu'on veut minimiser. Puis l'agrégation pondérée, numéro 22, fait une somme pondérée selon les priorités du client. Mais un score dépend des poids. L'optimisation de Pareto, numéro 21, n'en utilise aucun : un freelance en domine un autre s'il est au moins aussi bon partout et meilleur quelque part, et le premier front regroupe ceux que personne ne domine.
 
 ---
 
-## Diapositive 9 — Le planning par contraintes (n°3) [2:00]
+## Diapositive 13 — Matching (n°22 et n°21) : dans SmartBricks [0:50]
 
 **Affiché**
-- Variables : (freelance, début) de chaque tâche — Domaines : compétents × jours ouvrés
-- Contraintes : dépendances, compétences, congés, une tâche à la fois, date limite
-- Propagation : chemin critique Base → API → Pages → Panier = 11 jours, borne inférieure
-- Résultat : 18 jours ouvrés, fin le 9 décembre 2026, optimum prouvé, 7/7 contrôles
-- Diagnostic à 3 semaines : « Hasina : 84 h à 6 h par jour = 16 jours pour 15 »
-
-(Mini-planning de 4 tâches avec dépendances, chemin critique en couleur, encart diagnostic.)
+- 23 candidats, dont 9 sur le front 1
+- Économique → Rado 1er ; Rapide → Nirina 1er
+- ★ Toky : le plus proche de l'idéal
+- Rivo : 4,3 M Ar, 21 j, note 2,7 → dominé (front 5)
+- (nuage coût × durée, front relié, taille du point = qualité)
 
 **Script**
-> Le planning est un problème de satisfaction de contraintes, numéro 3. Les variables : pour chaque tâche, qui la fait et quand elle commence. Les domaines : les freelances qui ont la compétence au bon niveau, et les jours ouvrés. Les contraintes : les dépendances, les compétences, les congés, une seule tâche à la fois par personne, et la date limite.
-> Avant toute recherche, je propage. La méthode du chemin critique calcule, pour chaque tâche, sa date au plus tôt et au plus tard. Ici, le chemin base de données, API, pages du catalogue, pages du panier dure au minimum onze jours : c'est une borne inférieure. Aucun planning ne peut faire moins.
-> Puis je cherche avec retour arrière. On choisit la tâche qui a le moins de créneaux possibles, c'est l'heuristique MRV ; on essaie d'abord la fin la plus tôt ; et après chaque choix, on vérifie en avant qu'aucune tâche restante n'est condamnée. Une fois une solution trouvée, on cherche strictement plus court.
-> Résultat : 18 jours ouvrés, fin le 9 décembre. Pourquoi pas 11 ? Parce que Hasina est la seule à faire le React et le Node.js : sa charge impose 18 jours. Le solveur l'a prouvé en explorant 24 399 nœuds en un tiers de seconde. Et une fonction indépendante, `verify_schedule`, revérifie les sept contrôles : sept sur sept.
-> Si on ramène la date limite à trois semaines, il n'y a même pas de recherche : « Hasina doit faire 84 heures à 6 heures par jour, cela fait 16 jours, il en reste 15 : repoussez d'un jour ou ajoutez un renfort. » Un diagnostic chiffré et actionnable, pas un simple « impossible ».
+> Dans l'écran Équipe, le matching reçoit les tâches retenues et les profils des freelances. Pour Boutique Soa, 23 freelances savent faire au moins une tâche, et 9 sont sur le premier front. Le client règle ses priorités : en « Économique », Rado est premier ; en « Rapide », c'est Nirina. Sur le nuage, Rado, Nirina et Toky ne se dominent pas : l'un est moins cher, l'autre plus rapide, le troisième mieux noté. Rivo, lui, coûte 4,3 millions pour 21 jours avec une note de 2,7 : il est dominé, au cinquième front. Le meilleur compromis, le plus proche du point idéal, c'est Toky. Enfin, la plateforme suggère une équipe complète, quatre personnes pour Boutique Soa, que le client valide en un clic.
 
 ---
 
-## Diapositive 10 — La tournée (n°30) puis l'explication [1:30]
+## Diapositive 14 — Satisfaction de contraintes (n°3) : pourquoi et comment [0:50]
 
 **Affiché**
-- 4 agences : Tana, Antsirabe, Toamasina, Fianarantsoa
-- Held-Karp (exact) : Fianarantsoa → Toamasina → Tana → Antsirabe → retour
-- 1 286 km — 1 542 777 Ar — 32,1 h ; −18 % par rapport à l'ordre saisi
-- Distance = haversine × 1,35 ; 1 200 Ar/km ; 40 km/h
-- Puis : le copilote explique, chaque chiffre vérifié
-
-(Villes placées selon leurs coordonnées, itinéraire numéroté, distance et coût.)
+- Pourquoi : un planning, ce sont des règles qui doivent toutes être vraies.
+- Comment : 1 Propager : chemin critique, borne, impossibilités → 2 Choisir la tâche la plus contrainte (MRV) → 3 Anticiper : vérifier les suivantes → 4 Améliorer : chercher plus court, 3 s au plus
+- Puis verify_schedule revérifie les 8 contraintes, indépendamment du solveur.
 
 **Script**
-> Dernier problème, la tournée du technicien réseau, Soloniaina, qui part de Fianarantsoa. Les distances sont estimées par la formule de haversine, multipliée par un facteur routier de 1,35 ; c'est une approximation, et je l'assume.
-> Avec quatre sites, j'utilise Held-Karp, une programmation dynamique sur les sous-ensembles. Pour chaque ensemble de villes visitées et chaque ville d'arrivée, on garde seulement le meilleur chemin : c'est le principe de Bellman. C'est exact, en n² fois 2 puissance n, quelques millisecondes ici.
-> Résultat : Fianarantsoa, Toamasina, Tana, Antsirabe, puis retour. 1 286 kilomètres, 1 542 777 Ariary. L'ordre saisi par la cliente faisait 1 571 kilomètres : on économise 18 %.
-> Au-delà de douze sites, le sélecteur passe au plus proche voisin amélioré par 2-opt, qui décroise les trajets.
-> Et l'étape finale : le copilote reçoit uniquement ces résultats et les explique à la cliente. Si son texte contient un chiffre qui n'est pas dans les données, il est rejeté.
+> Un planning, c'est un ensemble de règles qui doivent toutes être vraies en même temps : les dépendances, les compétences, les congés, une seule tâche à la fois par personne, la date limite, et l'ordre des visites sur site. C'est exactement un problème de satisfaction de contraintes. Je le résous en quatre temps. Un, je propage : la méthode du chemin critique donne une borne inférieure et détecte certaines impossibilités sans chercher. Deux, je place d'abord la tâche qui a le moins de créneaux possibles, c'est l'heuristique MRV. Trois, après chaque choix, je vérifie qu'aucune tâche suivante n'est condamnée. Quatre, une fois une solution trouvée, je cherche strictement plus court, dans la limite de trois secondes. Et une fonction indépendante, verify_schedule, revérifie les huit contraintes sur les vraies dates.
 
 ---
 
-## Diapositive 11 — Architecture [1:00]
+## Diapositive 15 — CSP (n°3) : dans SmartBricks [0:50]
 
 **Affiché**
-- React 18 + TypeScript + Vite → API FastAPI asynchrone (/api/v1)
-- Services → algorithmes purs (aucune dépendance au web, à la base, à l'IA)
-- Copilote : simulé, Claude ou Gemini, suivi des coûts
-- PostgreSQL 17 (Docker), SQLAlchemy asynchrone, Alembic, JWT + argon2
-
-(Schéma en blocs.)
+- 18 jours ouvrés, fin le 9 décembre 2026 — optimum prouvé — 8/8 contraintes
+- Chemin critique : borne de 11 jours
+- Scénario 3 semaines : Hasina, 84 h à 6 h/jour = 16 jours pour 15 → impossible
+- Retard de 8 h sur T2 : Min-Conflict (n°11) déplace 2 tâches
 
 **Script**
-> Côté technique, l'interface est en React et TypeScript. Elle appelle une API FastAPI asynchrone. Les routes sont minces : elles délèguent à des services, qui lisent la base et appellent les algorithmes. Les algorithmes sont des fonctions pures, sans base, sans web, sans IA : c'est ce qui les rend testables un par un. Le copilote est derrière une interface commune, avec trois fournisseurs interchangeables, et chaque appel payant est compté. Les données sont dans PostgreSQL, le schéma est versionné par Alembic, et l'authentification utilise JWT et argon2.
+> Dans l'écran Planning, le CSP reçoit les 12 tâches retenues et les 4 membres de l'équipe. Il renvoie, pour chaque tâche, qui la fait et à quelles dates. Pour Boutique Soa : 18 jours ouvrés, fin le 9 décembre, optimum prouvé, et 8 contraintes sur 8 vérifiées. Le chemin critique ne demande que 11 jours ; les 7 jours de plus viennent du fait que Hasina est la seule à faire le React et le Node.js. Si l'on ramène la date limite à 3 semaines, le diagnostic tombe sans aucune recherche : 84 heures à 6 heures par jour, c'est 16 jours pour 15 disponibles ; il faut repousser d'un jour ou ajouter un renfort. Et quand une tâche prend du retard, Min-Conflict, numéro 11, répare le planning : 8 heures de plus sur l'API, et seules 2 tâches bougent, sans changer de freelance.
 
 ---
 
-## Diapositive 12 — Démonstration [4:00]
+## Diapositive 16 — Voyageur de commerce (n°30) : pourquoi et comment [0:50]
 
 **Affiché**
-- 0:00 Connexion « Soa » — tableau de bord
-- 0:30 Copilote : exemple Boutique Soa, une question, brouillon de 14 briques
-- 1:15 Périmètre : jauges, raisons, « et si ? »
-- 2:00 Équipe : préréglages, nuage de Pareto, équipe suggérée
-- 2:45 Planning : Gantt, 7/7, puis « Scénario impossible »
-- 3:30 Tournée sur la carte, puis synthèse expliquée
+- Pourquoi : visiter les agences une fois chacune, en parcourant le moins de kilomètres.
+- Comment : 1 Mesurer : haversine × 1,35 → 2 Mémoriser le meilleur chemin par (villes visitées, dernière ville) → 3 Reconstruire l'ordre optimal → 4 Au-delà de 12 sites : plus proche voisin + 2-opt
+- 12 sites : 39 916 800 ordres possibles ; Held-Karp ≈ 590 000 opérations
+
+**Script**
+> Pour les interventions sur site, il faut visiter chaque agence une fois en parcourant le moins de kilomètres : c'est le voyageur de commerce. Un, on estime les distances par la formule de haversine, multipliée par un facteur routier de 1,35 ; c'est une approximation assumée. Deux, Held-Karp, une programmation dynamique, retient pour chaque ensemble de villes visitées et chaque ville d'arrivée seulement le meilleur chemin ; c'est le principe d'optimalité de Bellman. Trois, on reconstruit l'ordre. Quatre, au-delà de 12 sites, le sélecteur passe au plus proche voisin amélioré par 2-opt. À 12 sites, il y a près de 40 millions d'ordres possibles, contre environ 590 000 opérations pour Held-Karp.
+
+---
+
+## Diapositive 17 — Voyageur de commerce (n°30) : dans SmartBricks [0:45]
+
+**Affiché**
+- Fianarantsoa → Toamasina → Antananarivo → Antsirabe → retour
+- 1 286 km — 1 542 777 Ar — 32,1 h de route
+- −18 % par rapport à l'ordre saisi (285 km de moins)
+- Held-Karp, tournée exacte
+
+**Script**
+> Dans l'écran Tournée, l'algorithme reçoit la ville du technicien, ici Soloniaina à Fianarantsoa, et les quatre agences. Il renvoie l'ordre optimal : Fianarantsoa, Toamasina, Antananarivo, Antsirabe, puis retour. Soit 1 286 kilomètres, 1 542 777 Ariary à 1 200 Ariary le kilomètre, et 32 heures de route. L'ordre saisi par la cliente faisait 1 571 kilomètres : on économise 285 kilomètres, 18 %. Et cet ordre est imposé au planning : les visites sur site suivent la tournée, avec un jour de trajet entre deux villes.
+
+---
+
+# Partie 3 — Le système
+
+## Diapositive 18 — Architecture du système [0:45]
+
+**Affiché**
+- React + TypeScript → API FastAPI asynchrone → services → algorithmes (Python pur)
+- Copilote LLM : Claude, Gemini ou simulé — PostgreSQL 17
+- Déploiement avec Docker : PostgreSQL dans un conteneur (docker compose, port 5435), installation identique partout ; Alembic gère les migrations
+
+**Script**
+> Côté système, l'interface en React et TypeScript appelle une API FastAPI asynchrone. Les routes délèguent à des services, qui lisent la base et appellent les algorithmes. Les algorithmes sont du Python pur : ni base, ni web, ni IA ; c'est ce qui les rend testables un par un. Le copilote est derrière une interface commune, avec Claude, Gemini ou un fournisseur simulé. La base PostgreSQL 17 tourne dans un conteneur Docker, lancé par docker compose sur le port 5435 : l'installation est la même sur toutes les machines. Et Alembic versionne le schéma de la base, comme git versionne le code.
+
+---
+
+## Diapositive 19 — Les technologies [0:40]
+
+**Affiché** (tableau couche · technologie · rôle)
+- Frontend : React 18, TypeScript, Vite, Tailwind, Recharts, Leaflet — les écrans
+- API : FastAPI, Pydantic v2, SQLAlchemy 2 asynchrone — routes, validation
+- Algorithmes : Python pur — les décisions chiffrées
+- LLM : Claude (claude-haiku-5-5), Gemini, simulé — dialogue et explication
+- Base de données : PostgreSQL 17 + Alembic — données et migrations
+- Docker : docker compose — base identique partout
+- Tests : pytest + httpx — algorithmes et parcours API
+
+**Script**
+> Voici les technologies, couche par couche. Le frontend utilise React 18 et TypeScript strict, avec Vite, Tailwind, Recharts pour le nuage de Pareto et Leaflet pour la carte. L'API est en FastAPI avec Pydantic pour la validation et SQLAlchemy asynchrone. Les algorithmes sont en Python pur. Le copilote utilise Claude, le modèle claude-haiku-5-5, ou Gemini, ou le mode simulé. PostgreSQL et Alembic gèrent les données, Docker la base, et pytest avec httpx les tests.
+
+---
+
+## Diapositive 20 — Qualité et fiabilité [0:50]
+
+**Affiché**
+- 153 tests pytest passent, dont 93 sur les algorithmes
+- Vérification indépendante : verify_selection, verify_schedule (8 contrôles)
+- Égal à la force brute : 200 sacs à dos, 120 tournées
+- Mode simulé et plafond de 4 $ pour le LLM
+
+**Script**
+> Pour la fiabilité, trois garde-fous. D'abord, 153 tests automatisés passent, dont 93 sur les algorithmes. Ensuite, chaque résultat est revérifié par une fonction indépendante du solveur : verify_selection pour le sac à dos, verify_schedule pour le planning, avec ses huit contrôles ; un planning faux n'est jamais renvoyé. Enfin, les méthodes exactes sont comparées à la force brute : le sac à dos donne la même valeur sur 200 instances aléatoires, Held-Karp la même longueur sur 120 tournées. Côté IA, le mode simulé permet une démonstration sans réseau ni clé, et un plafond de 4 dollars bascule automatiquement en mode simulé au-delà.
+
+---
+
+# Partie 4 — Démonstration et bilan
+
+## Diapositive 21 — Démonstration (4 minutes) [4:00]
+
+**Affiché**
+- 0:00 Connexion ou inscription — 0:30 Copilote (Claude), brouillon — 1:30 Périmètre, « et si ? » — 2:00 Équipe, Pareto — 2:45 Planning, scénario impossible, retard — 3:30 Tournée, synthèse, PDF
 
 **Script (à dire pendant les manipulations)**
-> **[0:00]** Je me connecte en un clic avec le compte de Soa. Le tableau de bord montre le projet et l'avancement en six briques.
-> **[0:30]** Nouveau projet, j'utilise l'exemple Boutique Soa. Le copilote ne répond pas tout de suite par un plan : il pose une question, sur la livraison à domicile. Je réponds oui. À droite apparaît le brouillon : quatorze briques, trente tâches, quatre sites. Je peux corriger une valeur ou des heures avant de valider.
-> **[1:15]** Périmètre. Les deux jauges : 92 % du budget, 68 % des heures. Chaque brique écartée a sa raison, par exemple MVola : « il faudrait 464 000 Ariary de plus ». En bas, l'encart « et si ? ».
-> **[2:00]** Équipe. Je passe d'« Économique » à « Rapide » : le classement change sous vos yeux. Voici le nuage de Pareto, le front en bleu, l'étoile du meilleur compromis. Je clique sur « Équipe suggérée » : quatre personnes, charge absorbable.
-> **[2:45]** Planning. Le Gantt, une ligne par freelance, le chemin critique entouré, et le panneau de vérification : sept contraintes sur sept. Je clique sur « Scénario impossible » : le diagnostic chiffré apparaît, et le vrai planning reste intact en dessous.
-> **[3:30]** Tournée : la carte, l'itinéraire numéroté, 1 286 kilomètres, 18 % de moins que l'ordre saisi. Enfin la synthèse : le copilote explique le plan, avec la mention « chaque chiffre vérifié dans les données ».
+> **[0:00]** Je me connecte comme Boutique Soa ; un nouveau client pourrait aussi créer son compte ici.
+> **[0:30]** Nouveau projet : je colle la description. Claude pose une question, je réponds, et le brouillon apparaît : fonctionnalités, tâches, sites, que je peux corriger avant de valider.
+> **[1:30]** Périmètre : les jauges, les raisons de chaque report, l'encart « et si ? ».
+> **[2:00]** Équipe : je passe d'« Économique » à « Rapide », le classement change ; voici le nuage de Pareto et l'étoile du meilleur compromis ; j'accepte l'équipe proposée.
+> **[2:45]** Planning : le Gantt avec ses flèches de dépendance, 8 contraintes sur 8 ; le scénario impossible et son diagnostic ; puis je signale un retard, et Min-Conflict répare.
+> **[3:30]** Tournée sur la carte, puis la synthèse : Claude explique le plan, chaque chiffre vérifié, et je télécharge le cahier des charges en PDF.
 
-*Plan B sans réseau : la démo ne dépend ni d'internet ni d'une clé ; la carte bascule d'elle-même sur le schéma hors ligne.*
-
----
-
-## Diapositive 13 — Résultats mesurés [1:15]
-
-**Affiché**
-- 124 tests automatisés passent (≈ 20 s) ; parcours complet : 45/45 vérifications
-- Sac à dos : = force brute sur 200 instances ; 40 fonctionnalités ≤ 10 ms ; glouton jusqu'à −13 %
-- Planning : 1ʳᵉ solution en 13 nœuds (1,7 ms) ; optimum prouvé en 0,38 s
-- Tournée : Held-Karp = force brute ; 12 villes en 14 ms ; plus proche voisin +18 %, 2-opt 0 %
-
-**Script**
-> Ce que j'ai mesuré, pas estimé. 124 tests automatisés passent en une vingtaine de secondes, et le parcours complet de l'API, 45 vérifications, passe intégralement.
-> Le sac à dos donne exactement la même valeur que la force brute sur 200 instances aléatoires. À quarante fonctionnalités, il reste sous dix millisecondes. Le glouton, lui, perd en moyenne 5 % et jusqu'à 13 % de valeur. Sur Boutique Soa, avec les tarifs de l'équipe, il perd 1,4 %.
-> Le planning : la première solution sort en 13 nœuds, moins de deux millisecondes, et c'est déjà la bonne. Prouver qu'on ne peut pas faire mieux prend environ 0,38 seconde.
-> La tournée : Held-Karp donne la même longueur que la force brute ; sur les douze villes de la base, 4 320 kilomètres en 14 millisecondes. Le plus proche voisin fait 18 % de plus ; 2-opt rattrape l'optimum.
-> Ces chiffres sont recalculés en direct par la page « Comparaison des méthodes ».
+*Plan B : en cas de problème de réseau, `LLM_PROVIDER=mock` rejoue la démonstration à l'identique, et la carte bascule sur un schéma hors ligne.*
 
 ---
 
-## Diapositive 14 — Limites et perspectives [1:00]
+## Diapositive 22 — Résultats mesurés [1:00]
 
 **Affiché**
-- Synthèse : 6,76 M Ar, car la tournée (1,54 M) n'entre pas dans le sac à dos
-- Distances estimées (×1,35) ; jours fériés ignorés
-- Claude non testé avec une vraie clé ; Gemini non testé
-- Niveau B à faire : Min-Conflict (n°11) après un retard, contrainte « sur site » liée à la tournée, espace freelance, export PDF
+- 18 nœuds : sac à dos de Boutique Soa, optimum prouvé (au lieu de 16 384)
+- ≤ 28,4 ms : 40 fonctionnalités, au pire (2 106 nœuds)
+- 13 nœuds : première solution du planning ; optimum prouvé ensuite
+- 4 320 km en ≈ 36 ms : Held-Karp, 12 villes ; plus proche voisin seul +18,4 %
+- ≤ 1,92 % : écart moyen de 2-opt à l'optimum
+- 153 tests passés
 
 **Script**
-> Je préfère vous montrer moi-même les limites. Un : le sac à dos respecte le budget des fonctionnalités, mais la tournée coûte 1,5 million en plus. La synthèse affiche donc 6,76 millions et le signale honnêtement. La correction serait de réserver les frais de tournée avant le sac à dos. Deux : les distances sont estimées, et les jours fériés ne sont pas gérés. Trois : l'intégration Claude est testée avec un client simulé, mais pas avec une vraie clé ; Gemini n'est pas testé.
-> Pour la suite, le niveau B : réparer un planning après un retard avec Min-Conflict, numéro 11, en changeant le moins de choses possible ; relier les tâches sur site à l'ordre de la tournée ; et un espace pour les freelances.
+> Ce que j'ai mesuré. Le sac à dos de Boutique Soa est résolu en 18 nœuds, avec un optimum prouvé ; sur des instances de 40 fonctionnalités, il reste sous 29 millisecondes au pire. Le planning trouve sa première solution en 13 nœuds, puis prouve qu'il n'existe pas plus court. Held-Karp traite les 12 villes de la base en environ 36 millisecondes, pour 4 320 kilomètres ; le plus proche voisin seul ferait 18 % de plus, et 2-opt retrouve l'optimum. Sur les instances aléatoires, l'écart moyen de 2-opt reste sous 2 %. Et les 153 tests passent. Ces mesures se recalculent en direct dans la page « Comparaison des méthodes ».
 
 ---
 
-## Diapositive 15 — Conclusion [0:45]
+## Diapositive 23 — Limites et perspectives [0:45]
 
 **Affiché**
-- Une IA pour comprendre et expliquer
-- Des algorithmes prouvés pour décider
-- Des résultats vérifiés, expliqués, chiffrés
-- Merci — questions ?
+- Limites : distances approchées (vol d'oiseau × 1,35) ; jours fériés non gérés ; frais de tournée hors du sac à dos
+- Perspectives : vraies distances routières et paiement Mobile Money réel ; Min-Conflict étendu aux absences imprévues
 
 **Script**
-> Pour conclure. SmartBricks montre qu'on peut combiner les deux mondes : l'IA pour comprendre un client et lui expliquer, les algorithmes pour décider de façon prouvable. Chaque résultat est vérifié par une fonction indépendante, et chaque refus est expliqué avec des chiffres. Boutique Soa sait maintenant ce qu'elle aura, avec qui, quand, et pour combien. Merci de votre attention ; je suis prêt pour vos questions.
+> Je préfère vous montrer moi-même les limites. Les distances sont approchées, à vol d'oiseau multiplié par 1,35. Les jours fériés ne sont pas gérés. Et les frais de tournée ne sont pas réservés dans le budget du sac à dos ; la synthèse le signale. En perspective : utiliser de vraies distances routières, brancher un vrai paiement Mobile Money, MVola ou Orange Money, et étendre Min-Conflict aux absences déclarées par les freelances, qui aujourd'hui demandent un recalcul complet.
+
+---
+
+## Diapositive 24 — Conclusion [0:30]
+
+**Affiché**
+- « Le copilote comprend et explique ; les algorithmes décident et garantissent. »
+- Merci — vos questions
+
+**Script**
+> Pour conclure : SmartBricks montre qu'on peut combiner les deux mondes. Le copilote comprend et explique ; les algorithmes décident et garantissent. Boutique Soa sait maintenant ce qu'elle aura, avec qui, quand, et pour combien. Merci de votre attention ; je suis prêt pour vos questions.
 
 ---
 
 ## Dix questions probables du jury
 
 **1. Pourquoi ne pas laisser l'IA tout faire ?**
-Un modèle de langage n'est ni exact ni reproductible : il peut inventer un total ou ignorer une contrainte. Les algorithmes donnent un optimum prouvé ou un diagnostic vérifiable. L'IA est réservée à ce qu'elle fait bien : comprendre et reformuler. Et même là, on contrôle sa sortie : schéma, cycles, chiffres cités.
+Un modèle de langage n'est ni exact ni reproductible. Les algorithmes donnent un optimum prouvé ou un diagnostic vérifiable ; l'IA est réservée à la compréhension et à la reformulation, et sa sortie est contrôlée (schéma, cycles, chiffres cités).
 
 **2. Comment prouvez-vous que le sac à dos est optimal ?**
-La borne (minimum des deux sacs fractionnaires) est une relaxation, donc on ne coupe jamais une branche qui contient mieux. Quand l'arbre est entièrement exploré, la meilleure solution est optimale. Le test le confirme : même valeur que la force brute sur 200 instances.
+La borne, minimum des deux sacs fractionnaires, est une relaxation : on ne coupe jamais une branche qui contient mieux. Arbre épuisé = optimum. Le test le confirme : même valeur que la force brute sur 200 instances.
 
 **3. Que se passe-t-il avec 100 fonctionnalités ?**
-Le sélecteur passe au glouton avec échanges 1-1, en moins de 3 s ; la solution est marquée « approchée ». Mesuré à 40 fonctionnalités, ce glouton s'écarte de 2,6 % en moyenne de l'optimum.
+Le sélecteur passe au glouton avec échanges 1-1, marqué « approché ». À 40 fonctionnalités, ce glouton s'écarte de 2,62 % en moyenne de l'optimum (benchmark).
 
-**4. Pourquoi le planning fait 18 jours alors que le chemin critique en fait 11 ?**
-Le chemin critique ignore les ressources. Hasina est la seule personne de l'équipe pour le React et le Node.js ; ses six tâches s'enchaînent. Le solveur a exploré tout l'arbre pour prouver qu'aucun planning de 17 jours n'existe avec cette équipe.
+**4. Pourquoi 18 jours alors que le chemin critique en fait 11 ?**
+Le chemin critique ignore les ressources : Hasina est la seule pour le React et le Node.js, ses tâches s'enchaînent. Le solveur a exploré tout l'arbre pour prouver qu'aucun planning plus court n'existe.
 
 **5. Et si le CSP ne trouve rien en 3 secondes ?**
-Il renvoie la meilleure solution trouvée, marquée non optimale, avec l'écart maximal à la borne. S'il n'en a trouvé aucune, le statut est « inconnu » et non « impossible », car on ne prétend pas avoir prouvé l'impossibilité. La réparation par Min-Conflict est prévue au niveau B.
+Il renvoie la meilleure solution trouvée, marquée non optimale ; s'il n'en a aucune, le statut est « inconnu », pas « impossible ».
 
-**6. Comment choisissez-vous entre deux freelances du premier front ?**
-Ils sont tous des compromis acceptables : c'est au client de choisir selon ses priorités, avec les curseurs. Pour l'aider, on indique le meilleur compromis, le plus proche du point idéal.
+**6. Min-Conflict ne risque-t-il pas de tout bouleverser ?**
+Non : seules les tâches en conflit bougent ; à égalité, il garde le même freelance et les dates les plus proches, puis une phase de resserrement ramène chaque tâche au plus près de sa date d'origine. Il affiche aussi, pour comparaison, ce que donnerait une replanification complète.
 
 **7. Vos distances sont-elles fiables ?**
-Ce sont des estimations : vol d'oiseau × 1,35, environ 162 km pour Tana–Antsirabe, contre environ 170 km réels. L'ordre de visite est peu sensible à ce facteur, puisqu'il multiplie toutes les distances. Une vraie matrice routière remplacerait une seule fonction.
+Ce sont des estimations (vol d'oiseau × 1,35). L'ordre de visite y est peu sensible, puisque le facteur multiplie toutes les distances ; une vraie matrice routière ne remplacerait qu'une fonction.
 
-**8. Combien coûte l'IA, et que se passe-t-il sans réseau ?**
-Chaque appel est enregistré (tokens, coût) ; au-delà de 4 dollars, ou sans clé, ou sans prix renseignés, le système bascule automatiquement en mode simulé. La démonstration entière fonctionne sans réseau.
+**8. Combien coûte l'IA, et sans réseau ?**
+Chaque appel est enregistré (tokens, coût) ; le parcours testé a coûté environ 0,002 $. Au-delà de 4 $, sans clé ou sans prix, bascule automatique en mode simulé, qui fonctionne sans réseau.
 
-**9. Comment empêchez-vous l'injection de consignes par le client ?**
-Le texte du client est toujours transmis comme donnée, entre balises, jamais comme consigne système. Et même si le modèle était détourné, sa sortie doit respecter le schéma JSON, puis les contrôles sans IA ; l'explication est rejetée si elle cite un chiffre inconnu.
+**9. Comment empêchez-vous l'injection de consignes ?**
+Le texte du client est transmis comme donnée, jamais comme consigne système ; la sortie doit respecter un schéma JSON, puis passer les contrôles sans IA ; l'explication est rejetée si elle cite un chiffre inconnu.
 
-**10. Qu'est-ce qui n'est pas fini ?**
-Le niveau B : Min-Conflict après un retard, la contrainte « sur site » reliée à la tournée, les flèches de dépendance dans le Gantt, l'espace freelance et l'export PDF. Les frais de tournée ne sont pas réservés dans le budget du sac à dos. Claude n'a pas été testé avec une vraie clé, et Gemini pas du tout.
+**10. Que voit un freelance ?**
+Un espace à lui : ses tâches, ce qu'il attend, ses indisponibilités, qu'il déclare lui-même et que le planning respecte ; s'il en déclare une sur une tâche déjà planifiée, le client reçoit une alerte.

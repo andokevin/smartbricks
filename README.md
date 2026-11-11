@@ -43,14 +43,14 @@ Les mesures portent sur le projet de démonstration « Boutique Soa » et sur de
 
 | Mesure | Résultat |
 |---|---|
-| Tests automatisés | **124 passent** (≈ 20 s) ; parcours HTTP complet : **45/45** vérifications |
+| Tests automatisés | **153 passent** (≈ 40 s), dont 93 sur les algorithmes ; toujours en mode simulé |
 | Sac à dos, projet | 4 fonctionnalités sur 14, 5 541 000 Ar sur 6 000 000 (92 %), 136 h sur 200 ; **18 nœuds**, optimum prouvé |
-| Sac à dos, aléatoire | même valeur que la force brute sur 200 instances ; 40 fonctionnalités : 2,8 ms en moyenne, 10,1 ms au pire ; écart moyen du glouton 5,3 % (au pire 13,1 %) |
-| Planning (CSP), projet | 18 jours ouvrés (borne du chemin critique : 11), **optimum prouvé** en 24 399 nœuds (≈ 0,37 s) ; 1re solution en 13 nœuds (1,7 ms) ; 7/7 contrôles |
+| Sac à dos, aléatoire | même valeur que la force brute sur 200 instances ; 40 fonctionnalités : 8,8 ms en moyenne, 28,4 ms au pire (2 106 nœuds) ; écart moyen du glouton 5,3 % (au pire 13,1 %) |
+| Planning (CSP), projet | 18 jours ouvrés (borne du chemin critique : 11), **optimum prouvé** ; 1re solution en 13 nœuds ; 8/8 contrôles (dont l'ordre des visites sur site) |
 | Planning impossible (3 semaines) | détecté **sans recherche** (0 nœud), avec un diagnostic chiffré de charge |
 | Tournée, projet | Held-Karp : 1 285,6 km, 1 542 777 Ar, soit 18 % de moins que l'ordre saisi |
-| Tournée, 12 villes | Held-Karp 4 320 km en ≈ 14 ms ; plus proche voisin +18,4 % ; 2-opt 0 % |
-| Held-Karp selon la taille | 38 ms en moyenne à 12 sites, 89 ms à 13 (seuil du sélecteur : 12) |
+| Tournée, 12 villes | Held-Karp 4 320 km en ≈ 36 ms ; plus proche voisin +18,4 % ; 2-opt 0 % |
+| Held-Karp selon la taille | 43 ms en moyenne à 12 sites, 185 ms à 13 (seuil du sélecteur : 12) |
 
 ## Documentation
 
