@@ -16,6 +16,7 @@ import type {
   FeaturePatch,
   FreelancerInfo,
   Health,
+  DelayResult,
   Schedule,
   Matching,
   Scope,
@@ -149,6 +150,8 @@ export const api = {
   schedule: (projectId: number) => request<Schedule>("GET", `/projects/${projectId}/schedule`),
   solve: (projectId: number, scenario: "normal" | "impossible") =>
     request<Schedule>("POST", `/projects/${projectId}/solve-constraints`, { scenario }),
+  propagateDelay: (taskId: number, delayHours: number) =>
+    request<DelayResult>("POST", `/tasks/${taskId}/propagate-delay`, { delay_hours: delayHours }),
 
   // Module E — tournée
   tourPreview: (projectId: number, o: TourOptions) => {

@@ -263,6 +263,10 @@ class SolveIn(BaseModel):
     deadline: date | None = Field(default=None, description="Autre date limite à tester (non enregistrée).")
 
 
+class DelayIn(BaseModel):
+    delay_hours: int = Field(gt=0, le=400, description="Heures de travail supplémentaires sur la tâche.")
+
+
 # =========================================================================== module E — tournée
 
 

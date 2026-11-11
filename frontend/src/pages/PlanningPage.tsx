@@ -10,6 +10,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { api, ApiError } from "../api/client";
 import type { FreelancerInfo, Schedule } from "../api/types";
 import { AppShell } from "../components/AppShell";
+import { DelayPanel, RepairSummary } from "../components/planning/DelayPanel";
 import { Gantt } from "../components/planning/Gantt";
 import { StepHeader } from "../components/StepHeader";
 import { Button, ButtonLink, Card, cx, ErrorBanner, Icon, Spinner } from "../components/ui";
@@ -164,6 +165,17 @@ export function PlanningPage() {
 
           {schedule && (
             <>
+              {schedule.repair && (
+                <div className="flex items-start gap-space-md rounded-2xl bg-secondary-container/40 p-space-md">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-on-primary">
+                    <Icon name="build" />
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-label-sm uppercase tracking-wider text-on-secondary-container">Planning réparé après un retard</span>
+                    <RepairSummary repair={schedule.repair} />
+                  </div>
+                </div>
+              )}
               <section className="grid grid-cols-1 gap-space-md md:grid-cols-2 xl:grid-cols-4">
                 <Kpi label="Durée" value={`${schedule.makespan_days} jours ouvrés`} hint={`Borne du chemin critique : ${schedule.lower_bound_days} j`} icon="hourglass_top" />
                 <Kpi
@@ -173,13 +185,23 @@ export function PlanningPage() {
                   icon="event_available"
                 />
                 <Kpi label="Ressources" value={`${schedule.team.length} freelances`} hint={`${formatInt(totalHours)} h réparties sur ${schedule.assignments.length} tâches`} icon="badge" />
-                <Kpi
-                  label="Résolution"
-                  value={schedule.optimal ? "Optimale" : "Meilleure trouvée"}
-                  hint={`${formatInt(schedule.nodes)} nœuds · ${schedule.elapsed_ms.toLocaleString("fr-FR")} ms`}
-                  icon="auto_graph"
-                  tone="secondary"
-                />
+                {schedule.repair ? (
+                  <Kpi
+                    label="Résolution"
+                    value="Réparé (n°11)"
+                    hint={`Min-Conflict · ${formatInt(schedule.repair.steps)} étape(s) · ${schedule.elapsed_ms.toLocaleString("fr-FR")} ms`}
+                    icon="build"
+                    tone="secondary"
+                  />
+                ) : (
+                  <Kpi
+                    label="Résolution"
+                    value={schedule.optimal ? "Optimale" : "Meilleure trouvée"}
+                    hint={`${formatInt(schedule.nodes)} nœuds · ${schedule.elapsed_ms.toLocaleString("fr-FR")} ms`}
+                    icon="auto_graph"
+                    tone="secondary"
+                  />
+                )}
               </section>
 
               <div className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
@@ -217,7 +239,15 @@ export function PlanningPage() {
                         <tbody>
                           {schedule.assignments.map((a) => (
                             <tr key={a.task_id} className="border-t border-surface-container-high">
-                              <td className="p-1.5"><strong className="text-primary">{a.ref}</strong> {a.title}</td>
+                              <td className="p-1.5">
+                                <strong className="text-primary">{a.ref}</strong> {a.title}
+                                {schedule.repair?.changed.includes(a.ref) && (
+                                  <span className="ml-1.5 rounded bg-secondary-container px-1 py-0.5 text-label-sm text-on-secondary-container">déplacée</span>
+                                )}
+                                {schedule.repair?.task_ref === a.ref && (
+                                  <span className="ml-1.5 rounded bg-tertiary-fixed px-1 py-0.5 text-label-sm text-tertiary">en retard</span>
+                                )}
+                              </td>
                               <td className="p-1.5">{a.freelancer}</td>
                               <td className="whitespace-nowrap p-1.5">{formatShortDate(a.start)}</td>
                               <td className="whitespace-nowrap p-1.5">{formatShortDate(a.end)}</td>
@@ -259,6 +289,14 @@ export function PlanningPage() {
                       </p>
                     </Card>
                   )}
+
+                  <DelayPanel
+                    schedule={schedule}
+                    onRepaired={(s) => {
+                      setTest(null);
+                      if (data.data) data.setData({ ...data.data, schedule: s });
+                    }}
+                  />
 
                   <Card className="flex flex-col gap-space-xs p-space-lg">
                     <span className="flex items-center gap-space-xs text-label-md uppercase tracking-wider text-primary">

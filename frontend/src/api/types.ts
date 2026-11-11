@@ -316,6 +316,32 @@ export interface Schedule {
   verification: { constraints_passed: boolean; checks: ConstraintCheck[] } | null;
   assignments: Assignment[];
   team: { id: number; name: string; hours_per_day: number }[];
+  /** Présent quand ce planning est issu d'une réparation après un retard (Min-Conflict n°11). */
+  repair?: Repair;
+}
+
+export interface Repair {
+  task_ref: string;
+  task_title: string;
+  delay_hours: number;
+  status: "OK" | "FAILED";
+  changed: string[];
+  reassigned: string[];
+  steps: number;
+  elapsed_ms: number;
+  previous_makespan_days: number | null;
+  previous_end_date: string | null;
+  new_makespan_days: number | null;
+  delayed_end: string | null;
+  diagnostics: string[];
+  /** Comparaison : replanification complète par le CSP avec la nouvelle durée. */
+  full_replan?: { status: string; makespan_days: number | null; end_date: string | null; changed_count: number | null };
+  method: MethodChoice;
+}
+
+export interface DelayResult {
+  repair: Repair;
+  schedule: Schedule | null;
 }
 
 export interface FreelancerInfo {

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_session
 from app.models import User
 from app.schemas import (
+    DelayIn,
     ExplainIn,
     ExplainOut,
     FeatureOut,
@@ -105,6 +106,14 @@ async def solve(project_id: int, data: SolveIn, session: AsyncSession = Depends(
     `{"scenario": "impossible"}` : date limite ramenée à 3 semaines, sans rien enregistrer.
     """
     return await scheduling.solve_constraints(session, await get_project(session, project_id, user), data)
+
+
+@router.post("/tasks/{task_id}/propagate-delay", tags=["D · planning CSP (n°3)"])
+async def propagate_delay(task_id: int, data: DelayIn, session: AsyncSession = Depends(get_session),
+                          user: User = Depends(get_current_user)) -> dict[str, Any]:
+    """Niveau B — Min-Conflict (n°11) : la tâche prend `delay_hours` de plus ; on répare le planning
+    en déplaçant le moins de tâches possible. Renvoie `{repair, schedule}` (schedule = null si échec)."""
+    return await scheduling.propagate_delay(session, user, task_id, data)
 
 
 @router.get("/projects/{project_id}/tour", tags=["E · tournée (n°30)"])
