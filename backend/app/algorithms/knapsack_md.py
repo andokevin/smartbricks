@@ -221,8 +221,9 @@ def branch_and_bound(
 
     COMPLEXITÉ
         Pire cas O(2^n) nœuds (le problème est NP-difficile), chaque nœud coûte O(n) pour la borne.
-        En pratique l'élagage réduit énormément l'arbre : 14 fonctionnalités ⇒ quelques centaines
-        de nœuds. Au-delà de 40 fonctionnalités, le sélecteur de méthode passe à l'heuristique.
+        En pratique l'élagage réduit énormément l'arbre : 14 fonctionnalités (Boutique Soa) ⇒ une
+        vingtaine de nœuds au lieu de 2^14 = 16 384 ; au plus 2 106 nœuds mesurés à 40 fonctionnalités.
+        Au-delà de 40 fonctionnalités, le sélecteur de méthode passe à l'heuristique.
     """
     t0 = time.perf_counter()
     p = _Problem(items, budget, max_hours)

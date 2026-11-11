@@ -1,0 +1,298 @@
+{
+ "seed": 2026,
+ "project": {
+  "id": 1,
+  "title": "Boutique Soa — e-commerce, application mobile et réseau des agences"
+ },
+ "knapsack": {
+  "course_number": 29,
+  "exact_method": "Séparation et évaluation",
+  "approx_methods": [
+   "Glouton par densité",
+   "Glouton + échanges 1-1"
+  ],
+  "threshold": "exact jusqu'à 40 fonctionnalités",
+  "project": {
+   "exact": {
+    "method": "Séparation et évaluation",
+    "feasible": true,
+    "value": 350,
+    "cost_mga": 5956000,
+    "hours": 156,
+    "time_ms": 0.19,
+    "nodes": 20,
+    "optimal": true,
+    "selected": 5
+   },
+   "greedy": {
+    "method": "Glouton par densité",
+    "feasible": true,
+    "value": 345,
+    "cost_mga": 5688000,
+    "hours": 146,
+    "time_ms": 0.059,
+    "nodes": 0,
+    "optimal": false,
+    "selected": 5,
+    "gap_pct": 1.43
+   },
+   "swaps": {
+    "method": "Glouton + échanges 1-1",
+    "feasible": true,
+    "value": 350,
+    "cost_mga": 5956000,
+    "hours": 156,
+    "time_ms": 0.193,
+    "nodes": 0,
+    "optimal": false,
+    "selected": 5,
+    "gap_pct": 0.0
+   }
+  },
+  "random": [
+   {
+    "n": 10,
+    "instances": 10,
+    "exact_ms_avg": 0.263,
+    "exact_ms_max": 1.143,
+    "nodes_max": 56,
+    "greedy_ms_avg": 0.042,
+    "swaps_ms_avg": 0.128,
+    "greedy_gap_avg_pct": 3.43,
+    "greedy_gap_max_pct": 18.38,
+    "swaps_gap_avg_pct": 0.78,
+    "swaps_gap_max_pct": 3.12,
+    "greedy_optimal_count": 6
+   },
+   {
+    "n": 20,
+    "instances": 10,
+    "exact_ms_avg": 0.94,
+    "exact_ms_max": 4.108,
+    "nodes_max": 462,
+    "greedy_ms_avg": 0.077,
+    "swaps_ms_avg": 0.605,
+    "greedy_gap_avg_pct": 9.1,
+    "greedy_gap_max_pct": 25.75,
+    "swaps_gap_avg_pct": 2.2,
+    "swaps_gap_max_pct": 6.56,
+    "greedy_optimal_count": 0
+   },
+   {
+    "n": 30,
+    "instances": 10,
+    "exact_ms_avg": 4.132,
+    "exact_ms_max": 30.807,
+    "nodes_max": 621,
+    "greedy_ms_avg": 0.107,
+    "swaps_ms_avg": 0.978,
+    "greedy_gap_avg_pct": 5.21,
+    "greedy_gap_max_pct": 12.36,
+    "swaps_gap_avg_pct": 3.65,
+    "swaps_gap_max_pct": 12.36,
+    "greedy_optimal_count": 1
+   },
+   {
+    "n": 40,
+    "instances": 10,
+    "exact_ms_avg": 2.843,
+    "exact_ms_max": 10.083,
+    "nodes_max": 2106,
+    "greedy_ms_avg": 0.163,
+    "swaps_ms_avg": 2.334,
+    "greedy_gap_avg_pct": 5.28,
+    "greedy_gap_max_pct": 13.13,
+    "swaps_gap_avg_pct": 2.62,
+    "swaps_gap_max_pct": 7.82,
+    "greedy_optimal_count": 2
+   }
+  ]
+ },
+ "csp": {
+  "course_number": 3,
+  "exact_method": "Retour arrière + propagation, optimisation de la durée (3 s max)",
+  "approx_methods": [
+   "Première solution trouvée (MRV, fin la plus tôt)"
+  ],
+  "threshold": "limite de 3 s ; aléatoires limitées à 0,5 s",
+  "project": {
+   "lower_bound_days": 11,
+   "first": {
+    "makespan_days": 18,
+    "time_ms": 1.746,
+    "nodes": 13
+   },
+   "optimized": {
+    "makespan_days": 18,
+    "time_ms": 376.645,
+    "nodes": 24399,
+    "optimal": true
+   },
+   "gap_pct": 0.0,
+   "tasks": 12,
+   "team": 4
+  },
+  "note": null,
+  "random": [
+   {
+    "n": 8,
+    "instances": 4,
+    "first_ms_avg": 2.042,
+    "optimized_ms_avg": 3.5,
+    "gap_avg_pct": 6.25,
+    "gap_max_pct": 25.0,
+    "optimal_count": 4
+   },
+   {
+    "n": 12,
+    "instances": 5,
+    "first_ms_avg": 4.2,
+    "optimized_ms_avg": 293.357,
+    "gap_avg_pct": 6.54,
+    "gap_max_pct": 12.5,
+    "optimal_count": 3
+   },
+   {
+    "n": 16,
+    "instances": 5,
+    "first_ms_avg": 6.531,
+    "optimized_ms_avg": 402.475,
+    "gap_avg_pct": 2.97,
+    "gap_max_pct": 7.69,
+    "optimal_count": 1
+   }
+  ]
+ },
+ "tsp": {
+  "course_number": 30,
+  "exact_method": "Held-Karp",
+  "approx_methods": [
+   "Plus proche voisin",
+   "Plus proche voisin + 2-opt"
+  ],
+  "threshold": "exact jusqu'à 12 sites",
+  "project": {
+   "held_karp": {
+    "km": 1285.6,
+    "time_ms": 0.019
+   },
+   "nearest_neighbor": {
+    "km": 1285.6,
+    "time_ms": 0.007,
+    "gap_pct": 0.0
+   },
+   "two_opt": {
+    "km": 1285.6,
+    "time_ms": 0.01,
+    "gap_pct": 0.0
+   },
+   "cities": [
+    "Antananarivo",
+    "Toamasina",
+    "Fianarantsoa",
+    "Antsirabe"
+   ]
+  },
+  "national": {
+   "held_karp": {
+    "km": 4320.1,
+    "time_ms": 14.325
+   },
+   "nearest_neighbor": {
+    "km": 5114.1,
+    "time_ms": 0.028,
+    "gap_pct": 18.38
+   },
+   "two_opt": {
+    "km": 4320.1,
+    "time_ms": 0.078,
+    "gap_pct": 0.0
+   },
+   "cities": [
+    "Antananarivo",
+    "Ambatondrazaka",
+    "Toamasina",
+    "Antsiranana",
+    "Nosy Be",
+    "Mahajanga",
+    "Morondava",
+    "Toliara",
+    "Manakara",
+    "Fianarantsoa",
+    "Ambositra",
+    "Antsirabe"
+   ]
+  },
+  "random": [
+   {
+    "sites": 6,
+    "instances": 5,
+    "held_karp_ms_avg": 0.149,
+    "two_opt_ms_avg": 0.014,
+    "nn_gap_avg_pct": 5.18,
+    "two_opt_gap_avg_pct": 0.36,
+    "two_opt_gap_max_pct": 1.81
+   },
+   {
+    "sites": 8,
+    "instances": 5,
+    "held_karp_ms_avg": 0.954,
+    "two_opt_ms_avg": 0.028,
+    "nn_gap_avg_pct": 9.97,
+    "two_opt_gap_avg_pct": 1.92,
+    "two_opt_gap_max_pct": 7.49
+   },
+   {
+    "sites": 10,
+    "instances": 5,
+    "held_karp_ms_avg": 5.621,
+    "two_opt_ms_avg": 0.042,
+    "nn_gap_avg_pct": 13.0,
+    "two_opt_gap_avg_pct": 1.32,
+    "two_opt_gap_max_pct": 4.47
+   },
+   {
+    "sites": 12,
+    "instances": 5,
+    "held_karp_ms_avg": 38.123,
+    "two_opt_ms_avg": 0.055,
+    "nn_gap_avg_pct": 8.31,
+    "two_opt_gap_avg_pct": 0.08,
+    "two_opt_gap_max_pct": 0.38
+   },
+   {
+    "sites": 13,
+    "instances": 2,
+    "held_karp_ms_avg": 88.83,
+    "two_opt_ms_avg": 0.07,
+    "nn_gap_avg_pct": 12.63,
+    "two_opt_gap_avg_pct": 1.04,
+    "two_opt_gap_max_pct": 2.08
+   }
+  ]
+ },
+ "selector": {
+  "course_number": 33,
+  "rules": [
+   {
+    "problem": "Sac à dos",
+    "exact": "Séparation et évaluation",
+    "approx": "Glouton + échanges 1-1",
+    "threshold": "≤ 40 fonctionnalités"
+   },
+   {
+    "problem": "Planning (CSP)",
+    "exact": "Retour arrière + propagation",
+    "approx": "Min-Conflict (niveau B)",
+    "threshold": "limite de 3 s"
+   },
+   {
+    "problem": "Tournée",
+    "exact": "Held-Karp",
+    "approx": "Plus proche voisin + 2-opt",
+    "threshold": "≤ 12 sites"
+   }
+  ]
+ },
+ "total_ms": 4504.592
+}

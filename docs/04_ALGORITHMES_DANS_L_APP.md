@@ -152,7 +152,7 @@ Retenues : F1, F2, F4, F11. Pour chaque écartée, une raison chiffrée (`explai
 
 ### 2.5 Complexité
 
-Pire cas O(2ⁿ) nœuds, chacun en O(n) pour la borne. En pratique l'élagage par la borne fractionnaire (minimum des bornes des deux dimensions) réduit l'arbre à quelques dizaines ou milliers de nœuds : 18 nœuds pour 14 fonctionnalités ; au pire 2 106 nœuds et 9,3 ms sur les instances aléatoires à 40 fonctionnalités du benchmark.
+Pire cas O(2ⁿ) nœuds, chacun en O(n) pour la borne. En pratique l'élagage par la borne fractionnaire (minimum des bornes des deux dimensions) réduit l'arbre à quelques dizaines ou milliers de nœuds : 18 nœuds pour 14 fonctionnalités ; au pire 2 106 nœuds et 10,1 ms (2,8 ms en moyenne) sur les instances aléatoires à 40 fonctionnalités du benchmark (`docs/benchmark_resultats.json`).
 
 ### 2.6 Exemple à la main
 
@@ -428,7 +428,7 @@ Depuis Tana, l'ordre saisi (Tana → Antsirabe → Toamasina → Fianarantsoa �
 
 ### 6.4 Pourquoi lui
 
-Held-Karp est **exact** et, jusqu'à 12 sites, prend quelques dizaines de millisecondes (15 ms pour les 12 villes de la base) : inutile d'approximer. Au-delà, le temps est multiplié par ≈ 2,5 par site ajouté (46 ms à 12 sites, 80 ms à 13 dans le benchmark), d'où le seuil. 2-opt est gardé car il retrouve l'optimum dans la plupart des cas (écart moyen 0,1 à 1,9 % sur les instances aléatoires) alors que le plus proche voisin seul s'en écarte de 5 à 18 %.
+Held-Karp est **exact** et, jusqu'à 12 sites, prend quelques dizaines de millisecondes (14 ms pour les 12 villes de la base) : inutile d'approximer. Au-delà, le temps double à peu près à chaque site ajouté (38 ms en moyenne à 12 sites, 89 ms à 13 dans le benchmark), d'où le seuil. 2-opt est gardé car il retrouve souvent l'optimum (écart moyen de 0,08 à 1,92 % selon la taille des instances aléatoires), alors que le plus proche voisin seul s'en écarte de 5,2 à 13 % en moyenne, et de 18,4 % sur les 12 villes.
 
 ### 6.5 Complexité
 
