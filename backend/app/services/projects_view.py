@@ -94,6 +94,7 @@ async def patch_feature(session: AsyncSession, user: User, feature_id: int, data
     for f in await load_features(session, project.id):
         f.selected_for_sprint = False
     project.status = ProjectStatus.DRAFT
+    project.scope_report = None  # le cadrage affiché n'est plus valable
     await session.flush()
     await recompute_feature_costs(session, project.id)
     await session.commit()

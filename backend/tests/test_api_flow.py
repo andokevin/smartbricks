@@ -62,8 +62,9 @@ async def test_parcours_complet_boutique_soa(client: AsyncClient, demo: dict[str
     h = await login(client)
     pid = demo["demo_project_id"]
 
-    # Avant le cadrage, pas de matching.
+    # Avant le cadrage, pas de matching ni de cadrage mémorisé.
     assert (await client.get(f"{API}/projects/{pid}/matching", headers=h)).status_code == 409
+    assert (await client.get(f"{API}/projects/{pid}/scope", headers=h)).status_code == 404
 
     # B — sac à dos
     s = (await client.post(f"{API}/projects/{pid}/scope", headers=h)).json()
@@ -74,6 +75,7 @@ async def test_parcours_complet_boutique_soa(client: AsyncClient, demo: dict[str
     assert {"F1", "F4", "F11"} <= chosen  # obligatoires
     assert all(f["reason"] for f in s["features"] if not f["selected"])
     assert any(w["added"] for w in s["what_if"])
+    assert (await client.get(f"{API}/projects/{pid}/scope", headers=h)).json() == s  # relu à l'identique
 
     # C — matching : les curseurs changent le classement ; 100 % coût = coût croissant.
     eco = (await client.get(f"{API}/projects/{pid}/matching?preset=Économique", headers=h)).json()

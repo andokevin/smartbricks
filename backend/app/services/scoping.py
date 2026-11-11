@@ -82,11 +82,18 @@ async def run_scope(session: AsyncSession, project: Project) -> ScopeOut:
         ],
         verification=violations,
     )
-    # On fige le rapport : les coûts seront recalculés au choix de l'équipe, mais l'explication
-    # doit citer les « et si ? » tels qu'ils ont été présentés au client.
-    project.scope_report = out.model_dump(mode="json", exclude={"features"})
+    # On fige le rapport complet : les coûts seront recalculés au choix de l'équipe, mais l'écran
+    # Périmètre et l'explication doivent montrer le cadrage tel qu'il a été présenté au client.
+    project.scope_report = out.model_dump(mode="json")
     await session.commit()
     return out
+
+
+def stored_scope(project: Project) -> ScopeOut:
+    """Dernier cadrage calculé, relu sans rien recalculer (GET /projects/{id}/scope)."""
+    if not project.scope_report or "features" not in project.scope_report:
+        raise AppError(404, "Aucun cadrage calculé pour ce projet : lancez-le (POST /projects/{id}/scope).")
+    return ScopeOut.model_validate(project.scope_report)
 
 
 def sprint_summary(features: list[Feature], solution: KnapsackSolution | None = None) -> dict[str, object]:

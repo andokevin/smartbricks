@@ -155,6 +155,66 @@ export interface City {
   longitude: number;
 }
 
+// ---------------------------------------------------------------- module B — sac à dos
+
+export interface MethodChoice {
+  problem: string;
+  method: string;
+  exact: boolean;
+  reason: string;
+  course_number: number;
+}
+
+export interface ScopeFeature {
+  id: number;
+  ref: string;
+  title: string;
+  business_value: number;
+  estimated_hours: number;
+  estimated_cost_mga: number;
+  is_mandatory: boolean;
+  depends_on: string[];
+  selected: boolean;
+  reason: string | null;
+}
+
+export interface WhatIf {
+  increase_pct: number;
+  extra_budget_mga: number;
+  new_budget_mga: number;
+  added: string[];
+  removed: string[];
+  value_gain: number;
+  message: string;
+}
+
+export interface Scope {
+  feasible: boolean;
+  message: string;
+  method: MethodChoice;
+  optimal: boolean;
+  nodes: number;
+  elapsed_ms: number;
+  total_value: number;
+  total_cost_mga: number;
+  total_hours: number;
+  budget_mga: number;
+  budget_hours: number;
+  budget_usage: number;
+  hours_usage: number;
+  missing_cost_mga: number;
+  missing_hours: number;
+  features: ScopeFeature[];
+  what_if: WhatIf[];
+  verification: string[];
+}
+
+export interface FeaturePatch {
+  business_value?: number;
+  estimated_hours?: number;
+  is_mandatory?: boolean;
+}
+
 export interface ResetDemoOut {
   demo_project_id: number;
   freelancers: number;

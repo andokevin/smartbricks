@@ -46,6 +46,13 @@ async def patch_feature(feature_id: int, data: FeaturePatch, session: AsyncSessi
     return await projects_view.patch_feature(session, user, feature_id, data)
 
 
+@router.get("/projects/{project_id}/scope", response_model=ScopeOut, tags=["B · sac à dos (n°29)"])
+async def get_scope(project_id: int, session: AsyncSession = Depends(get_session),
+                    user: User = Depends(get_current_user)) -> ScopeOut:
+    """Dernier cadrage calculé (sans recalcul) ; 404 s'il n'a jamais été lancé."""
+    return scoping.stored_scope(await get_project(session, project_id, user))
+
+
 @router.post("/projects/{project_id}/scope", response_model=ScopeOut, tags=["B · sac à dos (n°29)"])
 async def scope(project_id: int, session: AsyncSession = Depends(get_session),
                 user: User = Depends(get_current_user)) -> ScopeOut:

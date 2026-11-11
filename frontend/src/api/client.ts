@@ -10,7 +10,10 @@ import type {
   ConfirmOut,
   Conversation,
   Draft,
+  Feature,
+  FeaturePatch,
   Health,
+  Scope,
   Project,
   ProjectSummary,
   ResetDemoOut,
@@ -104,4 +107,10 @@ export const api = {
   conversation: (id: number) => request<Conversation>("GET", `/assistant/conversations/${id}`),
   projectConversation: (projectId: number) =>
     request<Conversation>("GET", `/assistant/projects/${projectId}/conversation`),
+
+  // Module B — sac à dos
+  scope: (projectId: number) => request<Scope>("GET", `/projects/${projectId}/scope`),
+  runScope: (projectId: number) => request<Scope>("POST", `/projects/${projectId}/scope`),
+  patchFeature: (featureId: number, patch: FeaturePatch) =>
+    request<Feature>("PATCH", `/features/${featureId}`, patch),
 };
