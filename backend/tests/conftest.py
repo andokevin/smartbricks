@@ -4,12 +4,18 @@ Attention : les tests d'API utilisent la base de développement et appellent res
 qui la vide puis la remplit à nouveau (données reproductibles, donc sans perte réelle).
 """
 
+import os
 from collections.abc import AsyncIterator
 
-import pytest
-from httpx import ASGITransport, AsyncClient
+# Les tests tournent TOUJOURS avec le copilote simulé, même si .env active Claude ou Gemini :
+# résultats reproductibles, aucun appel payant. Une variable d'environnement l'emporte sur .env,
+# et elle doit être posée avant le premier chargement de la configuration (import de app.main).
+os.environ["LLM_PROVIDER"] = "mock"
 
-from app.main import app
+import pytest  # noqa: E402
+from httpx import ASGITransport, AsyncClient  # noqa: E402
+
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture
