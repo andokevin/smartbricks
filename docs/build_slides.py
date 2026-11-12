@@ -1,11 +1,15 @@
-"""Génère docs/SmartBricks_presentation.pptx (16:9, 24 diapositives) avec python-pptx.
+"""Génère docs/SmartBricks_presentation.pptx (16:9, 22 diapositives) avec python-pptx.
 
 Lancement, depuis la racine du projet (python-pptx n'est pas une dépendance de l'API) :
     uv pip install --python backend/.venv/bin/python python-pptx
     backend/.venv/bin/python docs/build_slides.py
 
-- Une diapositive par section « ## Diapositive N » de docs/07_PRESENTATION.md ; le script oral de
-  chaque section est copié dans les NOTES de l'orateur (une seule source : le fichier Markdown).
+- Une diapositive par section « ## Diapositive N » de docs/07_PRESENTATION.md (le script de référence) ;
+  les notes de l'orateur ne contiennent que 2 ou 3 mots-clés de secours (liste SLIDES).
+- Animations écrites directement en XML (python-pptx ne les gère pas) : transition « Fondu » entre les
+  diapositives (add_transition) et apparition en fondu au clic, dans l'ordre de lecture
+  (click_groups + add_click_animations, qui ciblent les formes par leur identifiant réel spid).
+- Aucun numéro d'algorithme n'est affiché ; le voyageur de commerce n'est plus présenté.
 - Les schémas sont des formes natives PowerPoint (rectangles arrondis, flèches, connecteurs),
   modifiables dans PowerPoint ; aucune image.
 - Tous les chiffres sont ceux mesurés sur le projet de démonstration (API) et dans
@@ -192,8 +196,115 @@ def title(slide, label: str, dark: bool = False, width: float = 10.4, part: str 
 
 
 def badge(slide, label: str) -> None:
-    """Pastille « numéro du cours » en haut à droite des diapositives d'algorithme."""
-    box(slide, 11.15, 0.55, 1.6, 0.7, TERRA, label, size=22, name="Numéro du cours")
+    """Ancienne pastille « numéro du cours » : plus affichée (aucun numéro d'algorithme sur les diapositives)."""
+    return None
+
+
+# --------------------------------------------------------------------------- animations (XML direct)
+# python-pptx ne gère pas les animations : on écrit nous-mêmes <p:transition> et <p:timing>.
+
+STATIC_NAMES = {"Titre", "Partie", "Numéro de diapositive"}
+
+
+def _is_connector(shape) -> bool:
+    return shape.element.tag == qn("p:cxnSp")
+
+
+def click_groups(slide) -> list[list]:
+    """Regroupe les formes en « clics », dans l'ordre de création (= ordre de lecture) :
+    - le titre, la mention de partie et le numéro restent visibles dès l'arrivée ;
+    - une flèche apparaît avec la forme qui la suit (l'étape qu'elle relie à la précédente) ;
+    - des formes consécutives alignées sur la même ligne (cellules d'un tableau) forment un seul clic."""
+    groups: list[list] = []
+    pending: list = []
+    last_top = None
+    tol = Inches(0.05)
+
+    def inside(a, b) -> bool:  # les rectangles de a et b se recouvrent (carte et son texte)
+        return (a.left < b.left + b.width - tol and b.left < a.left + a.width - tol
+                and a.top < b.top + b.height - tol and b.top < a.top + a.height - tol)
+
+    for shp in slide.shapes:
+        if shp.name in STATIC_NAMES:
+            continue
+        if _is_connector(shp):
+            pending.append(shp)
+            continue
+        current = [g for g in (groups[-1] if groups else []) if not _is_connector(g)]
+        same_row = last_top is not None and abs(shp.top - last_top) < tol
+        same_tag = shp.name.startswith("g:") and current and current[-1].name == shp.name
+        overlaps = any(inside(shp, g) for g in current)
+        if groups and not pending and (same_row or same_tag or overlaps):
+            groups[-1].append(shp)
+        else:
+            groups.append(pending + [shp])
+        pending = []
+        last_top = shp.top
+    if pending:
+        groups.append(pending)
+    return groups
+
+
+def add_transition(slide) -> None:
+    """Transition « Fondu » à l'arrivée de la diapositive."""
+    sld = slide.element
+    tr = sld.makeelement(qn("p:transition"), {"spd": "med"})
+    tr.append(tr.makeelement(qn("p:fade"), {}))
+    clr = sld.find(qn("p:clrMapOvr"))
+    (clr if clr is not None else sld.find(qn("p:cSld"))).addnext(tr)
+
+
+def add_click_animations(slide, groups: list[list], effect: str = "fade") -> int:
+    """Effet d'entrée « Fondu » au clic : un clic par groupe, les formes d'un groupe apparaissent ensemble.
+
+    Écrit l'arbre <p:timing> attendu par PowerPoint (séquence principale, un <p:par> par clic) ;
+    chaque cible est désignée par l'identifiant réel de la forme (spid). Renvoie le nombre de clics."""
+    if not groups:
+        return 0
+    ids = iter(range(3, 100_000))
+    clicks = []
+    for group in groups:
+        effects = []
+        for k, shp in enumerate(group):
+            spid = shp.shape_id
+            node = "clickEffect" if k == 0 else "withEffect"
+            effects.append(
+                f'<p:par><p:cTn id="{next(ids)}" presetID="10" presetClass="entr" presetSubtype="0" fill="hold" '
+                f'grpId="0" nodeType="{node}"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>'
+                f'<p:set><p:cBhvr><p:cTn id="{next(ids)}" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/>'
+                f'</p:stCondLst></p:cTn><p:tgtEl><p:spTgt spid="{spid}"/></p:tgtEl><p:attrNameLst>'
+                f'<p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="visible"/>'
+                f'</p:to></p:set><p:animEffect transition="in" filter="{effect}"><p:cBhvr><p:cTn id="{next(ids)}" '
+                f'dur="500"/><p:tgtEl><p:spTgt spid="{spid}"/></p:tgtEl></p:cBhvr></p:animEffect>'
+                f'</p:childTnLst></p:cTn></p:par>'
+            )
+        clicks.append(
+            f'<p:par><p:cTn id="{next(ids)}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst>'
+            f'<p:childTnLst><p:par><p:cTn id="{next(ids)}" fill="hold"><p:stCondLst><p:cond delay="0"/>'
+            f'</p:stCondLst><p:childTnLst>{"".join(effects)}</p:childTnLst></p:cTn></p:par></p:childTnLst>'
+            f'</p:cTn></p:par>'
+        )
+    builds = "".join(f'<p:bldP spid="{shp.shape_id}" grpId="0" animBg="1"/>'
+                     for group in groups for shp in group if not _is_connector(shp))
+    xml = (
+        '<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
+        '<p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst>'
+        '<p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>'
+        + "".join(clicks) +
+        '</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl>'
+        '</p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl>'
+        '</p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst>'
+        f'<p:bldLst>{builds}</p:bldLst></p:timing>'
+    )
+    from lxml import etree
+
+    timing = etree.fromstring(xml)
+    sld = slide.element
+    anchor = sld.find(qn("p:transition"))
+    if anchor is None:
+        anchor = sld.find(qn("p:clrMapOvr"))
+    anchor.addnext(timing)
+    return len(groups)
 
 
 def slide_number(slide, n: int, dark: bool = False) -> None:
@@ -275,7 +386,7 @@ def s03_project(s):
     background(s, LIGHT)
     title(s, "Présentation du projet", part=PART1)
     text(s, 0.6, 1.5, 12.1, 1.0,
-         "SmartBricks transforme une idée en projet réalisable : périmètre, équipe, planning, tournée.",
+         "SmartBricks transforme une idée en projet réalisable : un périmètre chiffré, une équipe et un planning garanti.",
          size=24, bold=True, color=TEXT)
     actors = [("Le client", "décrit son besoin et décide", WHITE, TEXT),
               ("Le copilote IA", "comprend et explique", TERRA, WHITE),
@@ -286,7 +397,7 @@ def s03_project(s):
             [(head, {"size": 26})], [(role, {"size": 20, "bold": False})]])
         if k < 2:
             arrow(s, x + 3.6, 4.15, x + 4.15, 4.15, color=MUTED, width=2.5)
-    text(s, 0.6, 5.75, 12.1, 0.5, "L'IA ne calcule jamais un budget, un planning ou une tournée.",
+    text(s, 0.6, 5.75, 12.1, 0.5, "L'IA ne calcule jamais un budget ni un planning : ce sont les algorithmes qui décident.",
          size=20, color=MUTED, italic=True)
 
 
@@ -308,7 +419,7 @@ def s05_difficulties(s):
     text(s, 6.95, 1.55, 6.0, 0.5, "Côté freelance", size=24, bold=True, color=BLUE)
     left = ["Ne sait pas découper ni chiffrer son idée", "Budget limité, délai fixé",
             "Ne sait pas qui recruter"]
-    right = ["Disponibilités et compétences ignorées", "Planning irréaliste, déplacements mal organisés"]
+    right = ["Disponibilités et compétences ignorées", "Planning irréaliste, retards mal absorbés"]
     for k, item in enumerate(left):
         box(s, 0.6, 2.25 + k * 1.15, 5.95, 0.9, TERRA_TINT, item, size=20, color=TEXT, bold=False,
             align=PP_ALIGN.LEFT, pad=0.25)
@@ -326,26 +437,25 @@ def s05_difficulties(s):
 def s06_overview(s):
     background(s, LIGHT)
     title(s, "Les algorithmes utilisés", part=PART2)
-    rows = [("N°", "Algorithme", "Problème résolu", "Fonctionnalité"),
-            ("33", "IA : copilote + sélecteur", "Comprendre le besoin, choisir la méthode", "Copilote, partout"),
-            ("29", "Sac à dos multidimensionnel", "Que livrer sous budget et heures ?", "Périmètre"),
-            ("22", "Agrégation pondérée", "Classer selon les priorités", "Équipe"),
-            ("21", "Optimisation de Pareto", "Montrer les meilleurs compromis", "Équipe"),
-            ("3", "Satisfaction de contraintes", "Qui fait quoi, et quand ?", "Planning"),
-            ("30", "Voyageur de commerce", "Dans quel ordre visiter les agences ?", "Tournée"),
-            ("11", "Min-Conflict", "Réparer après un retard", "Planning")]
-    table_rows(s, 0.6, 1.4, (1.0, 3.6, 4.85, 2.7), rows, row_h=0.6, gap=0.07, size=17, first_fill=TERRA)
+    rows = [("Algorithme", "À quoi il sert", "Fonctionnalité"),
+            ("Satisfaction de contraintes (CSP)", "Décider qui fait chaque tâche, et quand", "Planning"),
+            ("Min-Conflict", "Réparer le planning après un retard", "Planning"),
+            ("Optimisation de Pareto", "Montrer les meilleurs compromis", "Équipe"),
+            ("Agrégation pondérée", "Classer selon les priorités du client", "Équipe"),
+            ("Sac à dos multidimensionnel", "Choisir quoi livrer sous budget et heures", "Périmètre"),
+            ("Copilote LLM + sélecteur", "Comprendre, choisir la méthode, expliquer", "Copilote, synthèse")]
+    table_rows(s, 0.6, 1.5, (4.4, 5.25, 2.5), rows, row_h=0.66, gap=0.08, size=18, first_fill=TERRA)
 
 
 def s07_flow(s):
     background(s, LIGHT)
     title(s, "L'enchaînement", part=PART2)
-    steps = [("Copilote", "n°33"), ("Périmètre", "n°29"), ("Équipe", "n°22 · 21"),
-             ("Planning", "n°3"), ("Tournée", "n°30"), ("Explication", "n°33")]
-    bw, gap, y = 1.75, 0.31, 2.6
+    steps = [("Copilote", "LLM"), ("Périmètre", "sac à dos"), ("Équipe", "pondération, Pareto"),
+             ("Planning", "CSP"), ("Explication", "LLM vérifié")]
+    bw, gap, y = 2.1, 0.41, 2.6
     for k, (name, num) in enumerate(steps):
         x = 0.6 + k * (bw + gap)
-        fill = TERRA if k in (0, 5) else BLUE
+        fill = TERRA if k in (0, 4) else BLUE
         box(s, x, y, bw, 1.5, fill, [[(name, {"size": 22})], [(num, {"size": 20, "bold": False})]])
         text(s, x, y - 0.6, bw, 0.45, str(k + 1), size=24, bold=True, color=fill, align=PP_ALIGN.CENTER)
         if k < len(steps) - 1:
@@ -374,12 +484,12 @@ def s09_copilot_app(s):
          ("« Boutique Soa veut un site e-commerce… 6 000 000 Ar, 8 semaines. »", {"bold": False, "color": TEXT, "size": 18})]])
     arrow(s, 3.7, 3.15, 3.7, 3.55, color=MUTED)
     box(s, 0.6, 3.6, 6.2, 1.15, BLUE, align=PP_ALIGN.LEFT, pad=0.25, label=[
-        [("Brouillon : ", {"size": 20}), ("14 fonctionnalités · 30 tâches · 4 sites (mode simulé)", {"size": 20, "bold": False})]])
+        [("Brouillon : ", {"size": 20}), ("14 fonctionnalités · 30 tâches (mode simulé)", {"size": 20, "bold": False})]])
     box(s, 0.6, 5.0, 6.2, 1.15, TERRA_TINT, align=PP_ALIGN.LEFT, pad=0.25, color=TEXT, label=[
         [("Avec Claude (essai réel) : ", {"size": 18}),
          ("2 échanges, 8 fonctionnalités, 18 tâches, ≈ 0,002 $", {"size": 18, "bold": False})]])
     text(s, 7.3, 1.55, 5.5, 0.5, "Sélecteur de méthode", size=22, bold=True, color=TEXT)
-    rules = [("Sac à dos ≤ 40", "exact"), ("Tournée ≤ 12 sites", "Held-Karp"), ("Planning", "3 s max")]
+    rules = [("Sac à dos ≤ 40", "exact"), ("Planning", "3 s max"), ("Après un retard", "réparer")]
     for k, (cond, meth) in enumerate(rules):
         y = 2.2 + k * 0.95
         box(s, 7.3, y, 3.2, 0.72, WHITE, cond, size=19, color=TEXT, bold=False, line=GRID)
@@ -433,8 +543,8 @@ def s12_matching_how(s):
     why_how(s, "Le moins cher n'est ni le plus rapide ni le mieux noté : il faut arbitrer entre critères.",
             [("Mesurer", "5 critères : coût, rapidité, qualité, disponibilité, couverture"),
              ("Normaliser", "chaque critère entre 0 et 1"),
-             ("Pondérer", "score = Σ poids × critère (n°22)"),
-             ("Comparer", "fronts de Pareto, sans poids (n°21)")],
+             ("Pondérer", "score = Σ poids × critère"),
+             ("Comparer", "fronts de Pareto, sans poids")],
             "Le score suit les priorités du client ; Pareto montre tous les bons compromis.")
 
 
@@ -490,10 +600,10 @@ def s14_csp_how(s):
     title(s, "Satisfaction de contraintes : pourquoi, comment", part=PART2, width=10.3)
     badge(s, "n°3")
     why_how(s, "Un planning, ce sont des règles qui doivent toutes être vraies : dépendances, compétences, congés, "
-               "une tâche à la fois, date limite, ordre des visites.",
+               "une tâche à la fois, date limite.",
             [("Propager", "chemin critique : borne et impossibilités"), ("Choisir", "la tâche la plus contrainte (MRV)"),
              ("Anticiper", "vérifier les tâches suivantes"), ("Améliorer", "chercher plus court, 3 s au plus")],
-            "Puis verify_schedule revérifie les 8 contraintes, indépendamment du solveur.")
+            "Puis une vérification indépendante du solveur revérifie tout le planning (8 contrôles).")
 
 
 def s15_csp_app(s):
@@ -534,7 +644,7 @@ def s15_csp_app(s):
         p.space_after = Pt(10)
     mc = box(s, 8.85, 4.9, 3.95, 1.35, TERRA_TINT, align=PP_ALIGN.LEFT, color=TEXT, anchor=MSO_ANCHOR.MIDDLE, label=[
         [("Retard de 8 h sur T2", {"size": 19})],
-        [("Min-Conflict (n°11) : 2 tâches déplacées", {"size": 18, "bold": False})]])
+        [("Min-Conflict : 2 tâches déplacées", {"size": 18, "bold": False})]])
     mc.text_frame.margin_left = Inches(0.22)
 
 
@@ -617,7 +727,7 @@ def s19_tech(s):
     background(s, LIGHT)
     title(s, "Les technologies", part=PART3)
     rows = [("Couche", "Technologie", "Rôle"),
-            ("Frontend", "React 18, TypeScript, Vite, Tailwind, Recharts, Leaflet", "Les écrans"),
+            ("Frontend", "React 18, TypeScript, Vite, Tailwind, Recharts", "Les écrans"),
             ("API", "FastAPI, Pydantic v2, SQLAlchemy 2 asynchrone", "Routes, validation"),
             ("Algorithmes", "Python pur", "Les décisions chiffrées"),
             ("LLM", "Claude (claude-haiku-5-5), Gemini, simulé", "Dialogue, explication"),
@@ -632,7 +742,7 @@ def s20_quality(s):
     title(s, "Qualité et fiabilité", part=PART3)
     cards = [("153 tests", "pytest, dont 93 sur les algorithmes", BLUE),
              ("Vérification", "verify_selection, verify_schedule (8 contrôles)", BLUE),
-             ("= force brute", "200 sacs à dos, 120 tournées", TERRA),
+             ("= force brute", "sac à dos identique sur 200 instances aléatoires", TERRA),
              ("Mode simulé", "démo sans réseau ; plafond de 4 $ pour le LLM", TERRA)]
     for k, (big, small, col) in enumerate(cards):
         x, y = 0.6 + (k % 2) * 6.2, 1.6 + (k // 2) * 2.35
@@ -650,15 +760,17 @@ def s21_demo(s):
     background(s, LIGHT)
     title(s, "Démonstration (4 minutes)", part=PART4)
     marks = [("0:00", "Connexion, inscription"), ("0:30", "Copilote (Claude)"), ("1:30", "Périmètre, et si ?"),
-             ("2:00", "Équipe, Pareto"), ("2:45", "Planning, retard"), ("3:30", "Tournée, synthèse, PDF")]
+             ("2:00", "Équipe, Pareto"), ("2:45", "Planning, retard"), ("3:30", "Synthèse, explication, PDF")]
     x0, step, y = 1.1, 2.2, 2.9
     arrow(s, 0.6, y, 12.8, y, color=GRID, width=3, head=False)
     for k, (t, label) in enumerate(marks):
         x = x0 + k * step
-        box(s, x - 0.42, y - 0.42, 0.84, 0.84, TERRA if k == 4 else BLUE, str(k + 1), size=22, shape=MSO_SHAPE.OVAL)
-        text(s, x - 0.9, y - 1.15, 1.8, 0.45, t, size=20, bold=True, color=MUTED, align=PP_ALIGN.CENTER)
-        text(s, x - 1.05, y + 0.6, 2.1, 1.0, label, size=20, color=TEXT, align=PP_ALIGN.CENTER)
-    box(s, 0.6, 5.1, 12.2, 0.95, BLUE_TINT, "Plan B sans réseau : copilote simulé, carte hors ligne en secours",
+        tag = f"g:jalon{k}"  # le numéro, l'heure et l'étiquette d'un jalon apparaissent ensemble
+        box(s, x - 0.42, y - 0.42, 0.84, 0.84, TERRA if k == 4 else BLUE, str(k + 1), size=22, shape=MSO_SHAPE.OVAL,
+            name=tag)
+        text(s, x - 0.9, y - 1.15, 1.8, 0.45, t, size=20, bold=True, color=MUTED, align=PP_ALIGN.CENTER, name=tag)
+        text(s, x - 1.05, y + 0.6, 2.1, 1.0, label, size=20, color=TEXT, align=PP_ALIGN.CENTER, name=tag)
+    box(s, 0.6, 5.1, 12.2, 0.95, BLUE_TINT, "Plan B sans réseau : copilote simulé, mêmes résultats calculés",
         size=20, color=TEXT, bold=False)
 
 
@@ -668,8 +780,8 @@ def s22_results(s):
     cards = [("18 nœuds", "sac à dos Boutique Soa, optimum prouvé", BLUE),
              ("≤ 28,4 ms", "40 fonctionnalités, au pire (2 106 nœuds)", BLUE),
              ("13 nœuds", "1re solution du planning, puis optimum prouvé", BLUE),
-             ("≈ 36 ms", "Held-Karp, 12 villes (4 320 km) ; voisin seul +18,4 %", TERRA),
-             ("≤ 1,92 %", "écart moyen de 2-opt à l'optimum", TERRA),
+             ("0 nœud", "planning impossible (3 semaines) prouvé sans recherche", TERRA),
+             ("5,3 %", "écart moyen du glouton seul (40 fonctionnalités)", TERRA),
              ("153 tests", "passés (pytest)", TERRA)]
     for k, (big, small, col) in enumerate(cards):
         x, y = 0.6 + (k % 3) * 4.1, 1.55 + (k // 3) * 2.3
@@ -685,8 +797,8 @@ def s23_limits(s):
     title(s, "Limites et perspectives", part=PART4)
     text(s, 0.6, 1.55, 6.0, 0.5, "Limites assumées", size=24, bold=True, color=TERRA)
     text(s, 6.95, 1.55, 6.0, 0.5, "Perspectives", size=24, bold=True, color=BLUE)
-    left = ["Distances approchées : vol d'oiseau × 1,35", "Jours fériés non gérés", "Frais de tournée hors du sac à dos"]
-    right = ["Vraies distances routières, paiement Mobile Money réel", "Min-Conflict étendu aux absences imprévues"]
+    left = ["Coûts estimés par des taux moyens", "Jours fériés non gérés", "Messages de validation en anglais"]
+    right = ["Paiement Mobile Money réel (MVola, Orange Money)", "Min-Conflict étendu aux absences imprévues"]
     for k, item in enumerate(left):
         box(s, 0.6, 2.25 + k * 1.15, 5.9, 0.9, TERRA_TINT, item, size=20, color=TEXT, bold=False,
             align=PP_ALIGN.LEFT, pad=0.25)
@@ -706,34 +818,51 @@ def s24_conclusion(s):
     text(s, 0.9, 5.4, 11, 0.8, "Merci — vos questions", size=36, bold=True, color=WHITE)
 
 
+# (fonction de dessin, fond sombre, animée au clic, mots-clés de secours pour les notes)
 SLIDES = [
-    (s01_cover, True), (s02_why, True), (s03_project, False), (s04_problem, False), (s05_difficulties, False),
-    (s06_overview, False), (s07_flow, False), (s08_copilot_how, False), (s09_copilot_app, False),
-    (s10_knapsack_how, False), (s11_knapsack_app, False), (s12_matching_how, False), (s13_matching_app, False),
-    (s14_csp_how, False), (s15_csp_app, False), (s16_tsp_how, False), (s17_tsp_app, False),
-    (s18_archi, False), (s19_tech, False), (s20_quality, False),
-    (s21_demo, False), (s22_results, False), (s23_limits, False), (s24_conclusion, True),
+    (s01_cover, True, False, "SmartBricks · copilote + algorithmes"),
+    (s02_why, True, True, "vision · Madagascar · 3 publics"),
+    (s03_project, False, True, "client décide · IA explique · algorithmes calculent"),
+    (s04_problem, False, True, "garantir, pas estimer"),
+    (s05_difficulties, False, True, "Boutique Soa · 15,2 M Ar pour 6 M"),
+    (s06_overview, False, True, "6 lignes · qui sert à quoi"),
+    (s07_flow, False, True, "copilote → sprint → équipe → planning → explication"),
+    (s08_copilot_how, False, True, "dialogue · JSON · contrôles · vérifié"),
+    (s09_copilot_app, False, True, "14 fonctionnalités · exact choisi"),
+    (s10_knapsack_how, False, True, "densité · borne min des 2 · élagage"),
+    (s11_knapsack_app, False, True, "4/14 · 92 % · 18 nœuds · +MVola"),
+    (s12_matching_how, False, True, "5 critères · normaliser · Pareto sans poids"),
+    (s13_matching_app, False, True, "Toky compromis · Rivo dominé"),
+    (s14_csp_how, False, True, "chemin critique · MRV · anticiper · 3 s"),
+    (s15_csp_app, False, True, "18 jours · borne 11 · Hasina 16 > 15"),
+    (s18_archi, False, True, "React → FastAPI → services → algorithmes"),
+    (s19_tech, False, True, "Docker · Alembic · pytest"),
+    (s20_quality, False, True, "153 tests · vérifications indépendantes"),
+    (s21_demo, False, True, "reset-demo d'abord · plan B simulé"),
+    (s22_results, False, True, "18 nœuds · 0 nœud · 153 tests"),
+    (s23_limits, False, True, "taux moyens · fériés · Mobile Money"),
+    (s24_conclusion, True, False, "comprend/explique · décide/garantit"),
 ]
 
 
 def main() -> None:
-    scripts = load_scripts()
-    if len(scripts) != len(SLIDES):
-        raise SystemExit(f"{len(scripts)} scripts trouvés dans 07_PRESENTATION.md pour {len(SLIDES)} diapositives.")
-    empty = [n for n, t in scripts.items() if not t]
-    if empty:
-        raise SystemExit(f"Script oral vide pour les diapositives {empty}.")
     prs = Presentation()
     prs.slide_width, prs.slide_height = Inches(W), Inches(H)
     prs.core_properties.title = "SmartBricks — soutenance"
     blank = prs.slide_layouts[6]
-    for n, (draw, dark) in enumerate(SLIDES, start=1):
+    report = []
+    for n, (draw, dark, animated, keywords) in enumerate(SLIDES, start=1):
         slide = prs.slides.add_slide(blank)
         draw(slide)
         slide_number(slide, n, dark)
-        slide.notes_slide.notes_text_frame.text = scripts[n]
+        slide.notes_slide.notes_text_frame.text = keywords
+        add_transition(slide)
+        clicks = add_click_animations(slide, click_groups(slide)) if animated else 0
+        report.append((n, draw.__name__, clicks))
     prs.save(OUT)
-    print(f"{OUT.name} : {len(SLIDES)} diapositives, notes de l'orateur incluses.")
+    print(f"{OUT.name} : {len(SLIDES)} diapositives, transitions en fondu, apparitions au clic.")
+    for n, name, clicks in report:
+        print(f"  {n:>2}  {name:<20} {clicks} clic(s)")
 
 
 if __name__ == "__main__":
