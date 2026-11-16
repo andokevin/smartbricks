@@ -1,4 +1,4 @@
-# 04 — Les algorithmes dans l'application
++# 04 — Les algorithmes dans l'application
 
 Pour chaque algorithme de la liste du cours utilisé par SmartBricks : l'idée générale, les données reçues (avec un **exemple JSON réel**, tiré de l'API sur le projet de démonstration « Boutique Soa »), ce qu'il décide, pourquoi lui, sa complexité, un exemple à la main, un schéma, et les fichiers où il est codé.
 
